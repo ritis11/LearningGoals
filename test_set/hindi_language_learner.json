@@ -1,0 +1,11 @@
+{
+  "persona_id": "hindi_language_learner",
+  "goal": "Learn Excel from basics to pivot tables and lookups for my office job",
+  "time_budget_minutes": 300,
+  "user_context": {
+    "background": "Sales coordinator in Delhi, uses computers daily but only basic spreadsheets",
+    "known": ["entering data in spreadsheets"],
+    "unknown": ["formulas", "pivot tables", "VLOOKUP"],
+    "constraints": "I want videos taught in Hindi."
+  }
+}

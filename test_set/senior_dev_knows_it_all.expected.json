@@ -1,0 +1,7 @@
+{
+  "expect_refusal": false,
+  "forbidden_title_patterns": [],
+  "required_topic_terms": ["react"],
+  "language": null,
+  "notes": "knowns >>> unknowns edge case (mind map): goal is already met. Plan should set goal_already_met and pivot to advanced/deepening content; report must flag it."
+}

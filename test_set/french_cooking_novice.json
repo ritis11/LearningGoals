@@ -1,0 +1,11 @@
+{
+  "persona_id": "french_cooking_novice",
+  "goal": "Learn to cook three classic French dishes well enough to host a dinner party",
+  "time_budget_minutes": 300,
+  "user_context": {
+    "background": "Home cook, comfortable with basic knife skills and following recipes",
+    "known": ["basic knife skills", "pan frying", "boiling pasta"],
+    "unknown": ["French mother sauces", "braising", "plating"],
+    "constraints": "Prefer videos where the dish is cooked start to finish, not technique montages."
+  }
+}

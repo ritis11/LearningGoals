@@ -1,0 +1,7 @@
+{
+  "expect_refusal": false,
+  "forbidden_title_patterns": ["in 100 seconds"],
+  "required_topic_terms": ["react"],
+  "language": null,
+  "notes": "Reference persona from the assignment PDF. Good output: 4-6 videos, ~5h, starts with React/Vite setup, then a project-build tutorial, skips JS intros and surface-level content."
+}

@@ -1,0 +1,7 @@
+{
+  "expect_refusal": false,
+  "forbidden_title_patterns": [],
+  "required_topic_terms": ["docker"],
+  "language": null,
+  "notes": "Tight budget: total <= 60 min forces few picks and/or segment-watching; plan_gaps should be honest."
+}
