@@ -1,17 +1,27 @@
 """Every dial in one place. Change behavior here, not by hunting through modules."""
 
+import os
 from pathlib import Path
 
-# --- models -----------------------------------------------------------------
-MODEL_FAST = "claude-haiku-4-5"   # guard, triage: high-volume, cheap
-MODEL_SMART = "claude-sonnet-5"   # plan, curate, judge: reasoning-heavy
+from dotenv import load_dotenv
+
+load_dotenv()  # must happen before any env read below (config imports before llm)
+
+# --- providers & models --------------------------------------------------------
+# fast: guard, triage (high-volume, cheap) | smart: plan, curate, judge
+PROVIDER_MODELS = {
+    "anthropic": {"fast": "claude-haiku-4-5", "smart": "claude-sonnet-5"},
+    "gemini": {"fast": "gemini-flash-latest", "smart": "gemini-flash-latest"},
+}
+DEFAULT_PROVIDER = os.environ.get("CURRICULUM_PROVIDER", "anthropic")
 
 # $ per million tokens (input, output) — used for run_meta cost accounting
 PRICES_PER_MTOK = {
     "claude-haiku-4-5": (1.00, 5.00),
     "claude-sonnet-5": (3.00, 15.00),
+    "gemini-flash-latest": (0.30, 2.50),
 }
-WEB_SEARCH_PRICE_PER_CALL = 0.01  # $10 / 1k searches
+WEB_SEARCH_PRICE_PER_CALL = {"anthropic": 0.01, "gemini": 0.035}  # per search/grounded query
 
 # --- pipeline dials ----------------------------------------------------------
 RESULTS_PER_QUERY = 12       # flat search results per generated query

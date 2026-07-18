@@ -3,7 +3,7 @@
 import json
 
 from . import config, prompts
-from .llm import LLM
+from .llm import BaseLLM
 from .schemas import Curriculum, Persona, TopicPlan, VideoContent
 
 
@@ -52,16 +52,17 @@ def validate(curriculum: Curriculum, bundles: list[VideoContent], budget_minutes
 
 
 def curate(
-    llm: LLM, persona: Persona, plan: TopicPlan, bundles: list[VideoContent]
+    llm: BaseLLM, persona: Persona, plan: TopicPlan, bundles: list[VideoContent]
 ) -> Curriculum:
     user = _user_message(persona, plan, bundles)
     curriculum: Curriculum = llm.parse(
         stage="curate",
-        model=config.MODEL_SMART,
+        model=llm.model_smart,
         system=prompts.CURATOR_SYSTEM,
         user=user,
         output_model=Curriculum,
-        max_tokens=8192,
+        max_tokens=16000,
+        effort="medium",  # default-effort thinking ate >14k tokens twice; medium bounds it
     )
     problems = validate(curriculum, bundles, persona.time_budget_minutes)
     if problems:
@@ -72,11 +73,12 @@ def curate(
         )
         curriculum = llm.parse(
             stage="curate_retry",
-            model=config.MODEL_SMART,
+            model=llm.model_smart,
             system=prompts.CURATOR_SYSTEM,
             user=retry_user,
             output_model=Curriculum,
-            max_tokens=8192,
+            max_tokens=16000,
+            effort="medium",
         )
         problems = validate(curriculum, bundles, persona.time_budget_minutes)
         if problems:

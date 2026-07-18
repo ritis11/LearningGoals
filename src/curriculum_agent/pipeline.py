@@ -4,14 +4,16 @@ import time
 from pathlib import Path
 
 from . import config, curator, guard, planner, render, triage, youtube
-from .llm import LLM
+from .llm import make_llm
 from .schemas import Persona, Refusal
 
 
-def run(persona: Persona, use_cache: bool = True, output_root: Path | None = None) -> Path:
+def run(persona: Persona, use_cache: bool = True, output_root: Path | None = None,
+        provider: str = config.DEFAULT_PROVIDER) -> Path:
     """Runs the full pipeline; returns the run directory with all artifacts."""
     run_dir = (output_root or config.OUTPUT_DIR) / persona.persona_id
-    llm = LLM()
+    llm = make_llm(provider)
+    print(f"  provider: {provider} (fast={llm.model_fast}, smart={llm.model_smart})")
     stage_seconds: dict[str, float] = {}
     t_run = time.perf_counter()
 

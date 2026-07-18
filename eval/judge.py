@@ -4,11 +4,11 @@ import json
 from pathlib import Path
 
 from curriculum_agent import config, prompts, youtube
-from curriculum_agent.llm import LLM
+from curriculum_agent.llm import BaseLLM
 from curriculum_agent.schemas import JudgeScores
 
 
-def judge_run(llm: LLM, run_dir: Path) -> JudgeScores | None:
+def judge_run(llm: BaseLLM, run_dir: Path) -> JudgeScores | None:
     """Returns None for refusal runs (nothing to rubric-score)."""
     curriculum_path = run_dir / "curriculum.json"
     if not curriculum_path.exists():
@@ -34,9 +34,10 @@ def judge_run(llm: LLM, run_dir: Path) -> JudgeScores | None:
     )
     return llm.parse(
         stage="judge",
-        model=config.MODEL_SMART,
+        model=llm.model_smart,
         system=prompts.JUDGE_SYSTEM,
         user=user,
         output_model=JudgeScores,
-        max_tokens=4096,
+        max_tokens=8192,
+        effort="medium",  # 7 dims + justifications; bound thinking so JSON fits
     )

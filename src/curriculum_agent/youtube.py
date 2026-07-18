@@ -9,6 +9,7 @@ import hashlib
 import json
 import logging
 import re
+import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Optional
@@ -173,17 +174,40 @@ def _select_track(info: dict, language: str) -> tuple[str, str, Optional[str]]:
     return "none", "", None
 
 
+# YouTube's timedtext endpoint rate-limits aggressively per IP (observed: a burst of
+# 14 downloads all 429'd). Downloads are paced, retried with backoff, and cached; after
+# 3 consecutive exhausted retries the breaker skips transcripts for the rest of the run
+# (bundles still carry chapters + description).
+_TIMEDTEXT_PACING_S = 1.5
+_TIMEDTEXT_BACKOFFS_S = (5, 20)
+_BREAKER_LIMIT = 3
+_last_download_at = 0.0
+_consecutive_failures = 0
+
+
 def _download_lines(url: str) -> list[tuple[int, str]]:
-    """Download a json3 track -> [(start_ms, text)] with empty events skipped."""
-    r = requests.get(url, timeout=30)
-    r.raise_for_status()
-    lines = []
-    for ev in r.json().get("events", []):
-        text = "".join(seg.get("utf8", "") for seg in ev.get("segs") or [])
-        text = " ".join(text.split())  # collapse newlines/whitespace
-        if text:
-            lines.append((ev.get("tStartMs", 0), text))
-    return lines
+    """Download a json3 track -> [(start_ms, text)] with empty events skipped.
+    Paced + retried on 429; raises after retries are exhausted."""
+    global _last_download_at
+    for attempt, backoff in enumerate((*_TIMEDTEXT_BACKOFFS_S, None)):
+        wait = _TIMEDTEXT_PACING_S - (time.monotonic() - _last_download_at)
+        if wait > 0:
+            time.sleep(wait)
+        r = requests.get(url, timeout=30)
+        _last_download_at = time.monotonic()
+        if r.status_code == 429 and backoff is not None:
+            retry_after = int(r.headers.get("retry-after") or 0)
+            time.sleep(max(backoff, retry_after))
+            continue
+        r.raise_for_status()
+        lines = []
+        for ev in r.json().get("events", []):
+            text = "".join(seg.get("utf8", "") for seg in ev.get("segs") or [])
+            text = " ".join(text.split())  # collapse newlines/whitespace
+            if text:
+                lines.append((ev.get("tStartMs", 0), text))
+        return lines
+    raise RuntimeError("unreachable")
 
 
 def _dedupe_rolling(lines: list[tuple[int, str]]) -> list[tuple[int, str]]:
@@ -259,17 +283,48 @@ def _compress(lines: list[tuple[int, str]], chapters: list[Chapter],
 
 def _build_transcript(info: dict, chapters: list[Chapter],
                       language: str) -> tuple[str, str, str, str]:
-    """Full pipeline: select -> download -> dedupe -> compress. Never raises.
+    """Full pipeline: select -> download (cached) -> dedupe -> compress. Never raises.
     Returns (excerpt, coverage, source, language_key)."""
+    global _consecutive_failures
     source, lang_key, url = _select_track(info, language)
     if not url:
         return "", "none", "none", ""
-    try:
-        lines = _dedupe_rolling(_download_lines(url))
-        excerpt, coverage = _compress(lines, chapters, int(info.get("duration") or 0))
-    except Exception as e:
-        log.warning("transcript failed for %s: %s", info.get("id"), e)
-        return "", "none", "none", ""
+
+    # transcripts are immutable per video+track: cache the deduped lines so eval
+    # reruns never re-hit the rate-limited timedtext endpoint
+    cache = _cache_path("transcripts", f"{info['id']}.{source}.{lang_key}")
+    lines = _cache_read(cache)
+    if lines is not None:
+        lines = [(int(t), s) for t, s in lines]
+    else:
+        if _consecutive_failures >= _BREAKER_LIMIT:
+            log.warning("transcript breaker open; skipping %s", info.get("id"))
+            return "", "none", "none", ""
+        try:
+            lines = _dedupe_rolling(_download_lines(url))
+            _cache_write(cache, lines)
+            _consecutive_failures = 0
+        except Exception as e:
+            status = getattr(getattr(e, "response", None), "status_code", None)
+            if status in (403, 404):
+                # cached track URLs are signed and expire (~6h): refresh metadata once
+                fresh = fetch_video(info["id"], use_cache=False, language=language)
+                _, _, fresh_url = _select_track(fresh or {}, language)
+                if fresh_url and fresh_url != url:
+                    try:
+                        lines = _dedupe_rolling(_download_lines(fresh_url))
+                        _cache_write(cache, lines)
+                        _consecutive_failures = 0
+                        excerpt, coverage = _compress(
+                            lines, chapters, int(info.get("duration") or 0))
+                        return (excerpt, coverage, source, lang_key) if excerpt else ("", "none", "none", "")
+                    except Exception as e2:
+                        e = e2
+            _consecutive_failures += 1
+            log.warning("transcript failed for %s: %s", info.get("id"), e)
+            return "", "none", "none", ""
+
+    excerpt, coverage = _compress(lines, chapters, int(info.get("duration") or 0))
     if not excerpt:
         return "", "none", "none", ""
     return excerpt, coverage, source, lang_key

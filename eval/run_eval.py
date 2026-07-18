@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from curriculum_agent import config, pipeline
-from curriculum_agent.llm import LLM
+from curriculum_agent.llm import make_llm
 from curriculum_agent.schemas import Persona
 
 from eval.checks import run_checks
@@ -33,11 +33,11 @@ def _load_test_set(persona_ids: list[str] | None) -> list[tuple[Persona, dict]]:
 
 
 def run_eval(persona_ids: list[str] | None = None, skip_run: bool = False,
-             use_judge: bool = True) -> Path:
+             use_judge: bool = True, provider: str = config.DEFAULT_PROVIDER) -> Path:
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
     out_dir = config.EVAL_RESULTS_DIR / stamp
     out_dir.mkdir(parents=True, exist_ok=True)
-    judge_llm = LLM() if use_judge else None
+    judge_llm = make_llm(provider) if use_judge else None
 
     rows = []
     for persona, expected in _load_test_set(persona_ids):
@@ -49,7 +49,7 @@ def run_eval(persona_ids: list[str] | None = None, skip_run: bool = False,
         if not skip_run:
             t0 = time.perf_counter()
             try:
-                pipeline.run(persona)
+                pipeline.run(persona, provider=provider)
                 result["run_seconds"] = round(time.perf_counter() - t0, 1)
             except Exception as exc:
                 result["run_error"] = str(exc)

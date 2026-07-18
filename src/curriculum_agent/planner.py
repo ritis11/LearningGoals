@@ -6,11 +6,11 @@ server-side tool use. See docs/BUILD_NOTES.md for the rationale.
 """
 
 from . import config, prompts
-from .llm import LLM
+from .llm import BaseLLM
 from .schemas import Persona, TopicPlan
 
 
-def fetch_recency_notes(llm: LLM, persona: Persona) -> str:
+def fetch_recency_notes(llm: BaseLLM, persona: Persona) -> str:
     user = (
         f"Learning area: {persona.goal}\n"
         f"Learner background: {persona.user_context.background}\n"
@@ -19,7 +19,7 @@ def fetch_recency_notes(llm: LLM, persona: Persona) -> str:
     try:
         return llm.text_with_web_search(
             stage="recency",
-            model=config.MODEL_SMART,
+            model=llm.model_smart,
             system=prompts.RECENCY_SYSTEM,
             user=user,
         ).strip()
@@ -28,7 +28,7 @@ def fetch_recency_notes(llm: LLM, persona: Persona) -> str:
         return ""
 
 
-def make_plan(llm: LLM, persona: Persona, recency_notes: str = "") -> TopicPlan:
+def make_plan(llm: BaseLLM, persona: Persona, recency_notes: str = "") -> TopicPlan:
     parts = [
         "Learner persona:",
         persona.model_dump_json(indent=2),
@@ -37,7 +37,7 @@ def make_plan(llm: LLM, persona: Persona, recency_notes: str = "") -> TopicPlan:
         parts += ["", "Recency notes (from live web search today):", recency_notes]
     plan = llm.parse(
         stage="plan",
-        model=config.MODEL_SMART,
+        model=llm.model_smart,
         system=prompts.PLANNER_SYSTEM,
         user="\n".join(parts),
         output_model=TopicPlan,

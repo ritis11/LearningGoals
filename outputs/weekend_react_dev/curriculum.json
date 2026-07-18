@@ -1,0 +1,213 @@
+{
+  "persona": {
+    "persona_id": "weekend_react_dev",
+    "goal": "Build a small React app this weekend, something like a habit tracker with local storage",
+    "time_budget_minutes": 360,
+    "user_context": {
+      "background": "Python backend engineer, 5 years experience",
+      "known": [
+        "JavaScript fundamentals",
+        "HTTP, REST, JSON",
+        "Git, npm"
+      ],
+      "unknown": [
+        "React",
+        "JSX",
+        "Vite tooling",
+        "React hooks",
+        "Component patterns"
+      ],
+      "constraints": "I prefer project-based content. Avoid pure-theory lectures and 'in 100 seconds' surface intros."
+    }
+  },
+  "topic_plan": {
+    "expertise_start": "experienced backend engineer, React beginner",
+    "expertise_start_why": "The learner has 5 years of backend engineering experience and understands core JS, npm, and general web architecture, but has no experience with React's declarative component model, stateful hooks, or modern frontend tooling like Vite.",
+    "expertise_target_provisional": "Capable of setting up a local development environment, structuring functional components, managing local state, and persisting state using browser localStorage to build a fully functional habit-tracker app.",
+    "goal_already_met": false,
+    "goal_already_met_note": "",
+    "topics": [
+      {
+        "name": "Vite React Project Setup & JSX for Developers",
+        "why": "The learner needs to understand how to spin up a modern React project using Vite and how JavaScript XML (JSX) translates to DOM elements, bypassing introductory programming basics.",
+        "est_minutes": 45,
+        "order": 1
+      },
+      {
+        "name": "React Components, Component Composition, & Props",
+        "why": "This topic covers how to split the UI into modular, reusable components and pass data down using props, which is critical for structuring the habit tracker's components (e.g., HabitList, HabitItem, HabitForm).",
+        "est_minutes": 60,
+        "order": 2
+      },
+      {
+        "name": "State Management with useState",
+        "why": "State is essential for maintaining dynamic data in React. The learner must understand how to manage the list of habits, add new habits, and toggle completion states using React's useState hook.",
+        "est_minutes": 75,
+        "order": 3
+      },
+      {
+        "name": "Managing Side Effects & Local Storage Persistence with useEffect",
+        "why": "To fulfill the core requirement of saving the habit tracker's progress, the learner needs to grasp the useEffect hook to sync React state changes with browser localStorage.",
+        "est_minutes": 75,
+        "order": 4
+      },
+      {
+        "name": "Building a React Habit Tracker (Hands-on Project)",
+        "why": "Provides a comprehensive, end-to-end practical project walk-through. This synthesizes components, props, state, and localStorage into a finished application, matching the learner's preferred project-based approach.",
+        "est_minutes": 70,
+        "order": 5
+      }
+    ],
+    "constraint_notes": [
+      {
+        "source_text": "I prefer project-based content.",
+        "kind": "prefer_format",
+        "instruction": "Prefer project-based build-along tutorials that show code implementation in real-time over theoretical slide presentations."
+      },
+      {
+        "source_text": "Avoid pure-theory lectures and 'in 100 seconds' surface intros.",
+        "kind": "exclude_title_pattern",
+        "instruction": "Exclude videos whose titles match 'in 100 seconds', '100s', 'in 5 minutes', or 'crash course' under 10 minutes."
+      },
+      {
+        "source_text": "Avoid pure-theory lectures",
+        "kind": "other",
+        "instruction": "Filter out academic or whiteboard-only lectures that do not include hands-on IDE coding demonstrations."
+      }
+    ],
+    "search_queries": [
+      "React Vite project tutorial habit tracker localstorage",
+      "build React app step by step local storage persistent state",
+      "React hooks useState useEffect project-based tutorial",
+      "build a Todo list React Vite local storage guide"
+    ]
+  },
+  "curriculum": {
+    "picks": [
+      {
+        "video_id": "siTUv1L9ymM",
+        "order": 1,
+        "title": "React Beginner Course 2025 (Vite, Tailwind CSS, TypeScript)",
+        "url": "https://www.youtube.com/watch?v=siTUv1L9ymM",
+        "watch": {
+          "mode": "full",
+          "segments": [],
+          "minutes": 104
+        },
+        "reason": "This is an exceptional developer-focused React foundation. It directly addresses the learner's unknowns by showing modern Vite setup (chapter 'React project setup...'), JSX, list rendering with map, component state ('useState + updating state in React'), and side effects with localStorage ('useEffect (side effects), local storage'). It bypasses general programming basics, making it ideal for a Python engineer.",
+        "covers_topics": [
+          "Vite React Project Setup & JSX for Developers",
+          "React Components, Component Composition, & Props",
+          "State Management with useState",
+          "Managing Side Effects & Local Storage Persistence with useEffect"
+        ],
+        "confidence": "high",
+        "confidence_why": "The video chapters perfectly align with the target topics, providing explicit, code-focused deep dives into Vite, components, state, and localStorage without wasting time on beginner JS syntax."
+      },
+      {
+        "video_id": "_xO3BkiWdJI",
+        "order": 2,
+        "title": "Build a React To-Do App with Local Storage (Hooks)",
+        "url": "https://www.youtube.com/watch?v=_xO3BkiWdJI",
+        "watch": {
+          "mode": "full",
+          "segments": [],
+          "minutes": 37
+        },
+        "reason": "This highly structured project build aligns perfectly with the learner's weekend goal. It implements a complete CRUD task list with styling, conditional rendering, filtering, and local storage sync. Watching this fulfills the hands-on project build requirement (similar to a habit tracker).",
+        "covers_topics": [
+          "Building a React Habit Tracker (Hands-on Project)",
+          "State Management with useState",
+          "Managing Side Effects & Local Storage Persistence with useEffect"
+        ],
+        "confidence": "high",
+        "confidence_why": "The chapters show a complete pipeline of building a functional, styled todo app with state persistence, mirroring the exact architecture needed for a habit tracker."
+      },
+      {
+        "video_id": "RDAFJ5ToMmQ",
+        "order": 3,
+        "title": "Persist State to localStorage in React (Complete Tutorial)",
+        "url": "https://www.youtube.com/watch?v=RDAFJ5ToMmQ",
+        "watch": {
+          "mode": "full",
+          "segments": [],
+          "minutes": 19
+        },
+        "reason": "Since the learner is a backend engineer, they will appreciate writing clean, reusable, and modular code. This tutorial moves beyond basic local storage inline logic to teach creating utility functions and building a custom 'usePersistedState' hook (chapter 'usePersistedState custom hook').",
+        "covers_topics": [
+          "Managing Side Effects & Local Storage Persistence with useEffect"
+        ],
+        "confidence": "high",
+        "confidence_why": "Chapters specifically break down utilities vs the custom hook structure, which satisfies the learner's intermediate/advanced engineering perspective."
+      }
+    ],
+    "dropped": [
+      {
+        "video_id": "X92kk5iT8CM",
+        "title": "Build a Complete To-Do List App with React + Vite | Dashboard, Reminders & Local Storage Tutorial",
+        "reason": "overlaps with Build a React To-Do App with Local Storage (Hooks) (_xO3BkiWdJI) because both show how to build a complete to-do list application using React + Vite and Local Storage, but the picked video has much clearer step-by-step chapter markers."
+      },
+      {
+        "video_id": "G6D9cBaLViA",
+        "title": "Learn React With This ONE Project",
+        "reason": "The project is a movie application that relies on fetching data from an external movie API and route structures, which does not align as closely with the local state management and localStorage requirements of a weekend habit tracker."
+      },
+      {
+        "video_id": "gNEQ8PSkaI4",
+        "title": "CRUD Todo App | React Typescript Project",
+        "reason": "overlaps with Build a React To-Do App with Local Storage (Hooks) (_xO3BkiWdJI) because both build a functional CRUD React app, but the picked video explicitly implements the localStorage integration which is the learner's key goal."
+      },
+      {
+        "video_id": "O6P86uwfdR0",
+        "title": "Learn useState In 15 Minutes - React Hooks Explained",
+        "reason": "It is a short hook-specific intro and overlaps with 'siTUv1L9ymM', which explains the state hooks in a more cohesive, project-driven framework."
+      },
+      {
+        "video_id": "4Ak2jFEIr9o",
+        "title": "All React Hooks Tutorial ( +Building Custom Hooks )",
+        "reason": "Covers many advanced hooks like useMemo, useTransition, useReducer, and React 19 hooks that are outside the scope of building a local-storage habit tracker, introducing unnecessary complexity."
+      },
+      {
+        "video_id": "LZKsD_5ttZ4",
+        "title": "React Classes To Hooks: Everything about useState + useEffect",
+        "reason": "Focuses heavily on transitioning legacy class components to hooks. Since the learner has no prior exposure to React, introducing class lifecycles will only cause confusion."
+      },
+      {
+        "video_id": "Tj4jfyk_f08",
+        "title": "#40: Keep Todo Data After Refresh: Adding Local Storage in React",
+        "reason": "overlaps with Persist State to localStorage in React (RDAFJ5ToMmQ) because both teach local storage data loading, but RDAFJ5ToMmQ is better tailored to a software engineer as it covers cleaner custom hooks patterns."
+      },
+      {
+        "video_id": "rWfhwW9forg",
+        "title": "Save State to LocalStorage & Persist on Refresh with React.js",
+        "reason": "overlaps with Persist State to localStorage in React (RDAFJ5ToMmQ) which offers a cleaner utility function-oriented approach suitable for a backend developer."
+      },
+      {
+        "video_id": "N7rs5F4f6FA",
+        "title": "Learn How to Use Local Storage in React With an Easy-to-Understand Example",
+        "reason": "overlaps with Persist State to localStorage in React (RDAFJ5ToMmQ) but focuses on a simple tally counter instead of robust collection data."
+      },
+      {
+        "video_id": "tbCFT4in5VM",
+        "title": "Complete React JS Tutorial for Beginners #8 - Persisting State in Local Storage",
+        "reason": "overlaps with the state persistence chapters in siTUv1L9ymM and has less structured layout."
+      },
+      {
+        "video_id": "BAf0uhKVHBk",
+        "title": "Dark Mode w/ Custom React Hooks using Local Storage",
+        "reason": "The focus of this video is on building dark mode and synchronizing state across tabs, which is less relevant than building a persistent data list for a habit tracker."
+      }
+    ],
+    "budget": {
+      "total_minutes": 160,
+      "budget_minutes": 360,
+      "headroom_note": "You have 200 minutes remaining of your 360-minute budget, allowing ample time for pauses, hands-on building, and coding along."
+    },
+    "plan_gaps": [],
+    "expertise_achieved": {
+      "level": "Capable React Developer (Capable of building local-storage-backed client apps)",
+      "justification": "The picked curriculum covers Vite setup, JSX, component design, props, useState, useEffect, lists/keys, and state persistence. This fully supports the goal of building a custom habit tracker with clean, custom-hook-driven local storage."
+    },
+    "summary": "This weekend curriculum is tailored for a backend engineer wanting to build a local-first React app. You'll start with a fast-paced foundational course to learn Vite, JSX, components, and basic hooks, transition to coding an interactive to-do list, and conclude by optimizing your local storage persistence with modular helper functions and a custom hook."
+  }
+}

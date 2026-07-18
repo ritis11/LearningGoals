@@ -1,7 +1,7 @@
 """Stage 4: hard filters in code, then one Haiku call scores the survivors."""
 
 from . import config, prompts
-from .llm import LLM
+from .llm import BaseLLM
 from .schemas import CandidateVideo, Persona, TopicPlan, TriageResult, TriageScore
 
 
@@ -34,7 +34,7 @@ def _candidate_table(candidates: list[CandidateVideo]) -> str:
 
 
 def triage(
-    llm: LLM, persona: Persona, plan: TopicPlan, candidates: list[CandidateVideo]
+    llm: BaseLLM, persona: Persona, plan: TopicPlan, candidates: list[CandidateVideo]
 ) -> tuple[list[str], list[TriageScore]]:
     """Returns (finalist_ids, all_scores). Scores for every candidate are kept for the trace."""
     user = "\n\n".join(
@@ -51,7 +51,7 @@ def triage(
     )
     result: TriageResult = llm.parse(
         stage="triage",
-        model=config.MODEL_FAST,
+        model=llm.model_fast,
         system=prompts.TRIAGE_SYSTEM,
         user=user,
         output_model=TriageResult,

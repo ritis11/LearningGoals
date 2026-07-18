@@ -225,6 +225,7 @@ systemdiag.excalidraw
 
 # project
 .cache/
-outputs/
+outputs/*
+!outputs/weekend_react_dev/
 eval/results/
 .env

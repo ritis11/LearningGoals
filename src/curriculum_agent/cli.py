@@ -16,6 +16,9 @@ def main() -> None:
     p_run = sub.add_parser("run", help="build a curriculum for one persona JSON")
     p_run.add_argument("persona", type=Path, help="path to persona JSON")
     p_run.add_argument("--no-cache", action="store_true", help="bypass YouTube disk cache")
+    p_run.add_argument("--provider", choices=["anthropic", "gemini"],
+                       default=config.DEFAULT_PROVIDER,
+                       help="LLM provider (default: $CURRICULUM_PROVIDER or anthropic)")
     p_run.add_argument("--output-dir", type=Path, default=None)
 
     p_eval = sub.add_parser("eval", help="run the evaluation harness over test_set/")
@@ -24,6 +27,9 @@ def main() -> None:
                         help="evaluate existing outputs/ without re-running the pipeline")
     p_eval.add_argument("--no-judge", action="store_true",
                         help="deterministic checks only (no LLM judge)")
+    p_eval.add_argument("--provider", choices=["anthropic", "gemini"],
+                        default=config.DEFAULT_PROVIDER,
+                        help="LLM provider (default: $CURRICULUM_PROVIDER or anthropic)")
 
     args = parser.parse_args()
 
@@ -34,14 +40,16 @@ def main() -> None:
             sys.exit(f"invalid persona file: {exc}")
         print(f"building curriculum for '{persona.persona_id}' "
               f"(budget {persona.time_budget_minutes} min)")
-        pipeline.run(persona, use_cache=not args.no_cache, output_root=args.output_dir)
+        pipeline.run(persona, use_cache=not args.no_cache, output_root=args.output_dir,
+                     provider=args.provider)
 
     elif args.command == "eval":
         # imported lazily: eval/ ships alongside src/ but isn't part of the package
         sys.path.insert(0, str(config.ROOT))
         from eval.run_eval import run_eval
 
-        run_eval(persona_ids=args.personas, skip_run=args.skip_run, use_judge=not args.no_judge)
+        run_eval(persona_ids=args.personas, skip_run=args.skip_run,
+                 use_judge=not args.no_judge, provider=args.provider)
 
 
 if __name__ == "__main__":

@@ -96,4 +96,95 @@ returns everything (chapters included). Wrote `experiments/benchmark_youtube_fet
 - **Not yet done (needs the assignment API key in `.env`)**: first live end-to-end run,
   the real eval numbers for EVALUATION.md §3, and prompt tuning based on those outputs.
 
+### First live run: two failures, three fixes (same day)
+The first keyed end-to-end run (`weekend_react_dev`) surfaced exactly the class of
+issues the eval harness exists for:
+
+1. **YouTube `timedtext` IP block.** All 14 finalist transcript downloads returned 429.
+   Diagnosis ruled out our burst as the sole cause: a *never-before-requested* video's
+   fresh URL also 429'd, on multiple yt-dlp player clients, and `youtube-transcript-api`
+   (different negotiation path) reported `IpBlocked` — an IP-level caption block,
+   sticky for ~an hour, likely triggered by the day's accumulated experiments.
+   **Response** (since no client-side trick dodges an IP block): (a) pace transcript
+   downloads (1.5s spacing) with 429 backoff so we stop *triggering* blocks; (b) a
+   circuit breaker — 3 consecutive exhausted-retry failures stop transcript attempts
+   for the run (bundles still carry chapters + descriptions; curator confidence
+   downgrades per prompt); (c) transcripts cached permanently on success, so recovery
+   is a one-time cost per video; (d) stale signed URLs (expire ~6h) refresh metadata
+   once on 403/404. The pipeline now *completes* through a full caption outage —
+   graceful degradation over hard dependency. Logged in EVALUATION.md as a known limit:
+   metadata-cached runs during a block produce chapter/description-grounded reasons
+   rather than transcript-grounded ones.
+2. **Curator crash: `parsed_output=None`.** Sonnet 5's adaptive thinking spends from
+   the same `max_tokens` budget as the output JSON; at 8192 the curriculum JSON got
+   truncated (`stop_reason=max_tokens`) and the SDK returns None rather than raising.
+   Fixes: curate calls now get 16000 tokens; `llm.parse` self-heals once at the
+   non-streaming ceiling and otherwise raises with the stop_reason instead of letting
+   None propagate to a confusing AttributeError.
+3. **Recency step took 223s** — an enrichment step costing 60% of total wall time.
+   Fix: `output_config={"effort": "low"}` on the web-search call (it's a bullet-point
+   research task, not quality-critical reasoning). Kept the guard-gated conditionality.
+
+Meta-lesson for the README: stage-level timing in `run_meta` made the recency problem
+visible instantly, and validation-before-render turned a would-be-silent truncation
+into a stack trace. Instrumentation paid for itself on run one.
+
+### Provider abstraction: Gemini added alongside Anthropic
+Motivations: (a) the assignment's Claude key has a usage cap — dev/eval iteration
+shouldn't burn it; (b) a second provider makes the "model comparison" bonus a real
+cross-provider comparison, not just Haiku-vs-Sonnet; (c) it forces the LLM interface
+to be honest (one `parse()` + one `text_with_web_search()` contract, two backends).
+
+Implementation kept deliberately thin (`src/curriculum_agent/llm.py`): `AnthropicLLM`
+(messages.parse + server-side web_search) and `GeminiLLM` (raw REST `generateContent`
+via requests — no new SDK dependency; structured outputs via `responseJsonSchema` with
+a schema-in-prompt fallback for 400s; `google_search` grounding for the recency step;
+`effort` mapped to `thinkingConfig.thinkingBudget`: low→0, medium→2048, high→dynamic).
+Stage modules now take the models from the LLM instance (`llm.model_fast/model_smart`)
+instead of importing config constants — stages are provider-blind. Selected per run:
+`--provider anthropic|gemini` (default from `CURRICULUM_PROVIDER` env). Cost accounting
+covers both (flash at $0.30/$2.50 per MTok; grounding at ~$0.035/query).
+
+Also this round, from the second live failure: truncation on Anthropic manifests two
+ways (parsed_output=None *or* a raised ValidationError on cut-off JSON) — the parse
+self-heal ladder now catches both, retrying once at the 16k ceiling with effort stepped
+down; curate and judge calls run at effort=medium after default-effort thinking ate
+>14k tokens twice.
+
+### First green end-to-end runs — one per provider
+- **Anthropic** (weekend_react_dev): completed in ~160s, $0.32. The recency fix worked
+  (223s → 21s with effort=low). Curate at effort=medium: 78s, valid on first attempt.
+- **Config bug found by the provider switch**: `config.py` read `CURRICULUM_PROVIDER`
+  at import time, but `.env` loading lived in `llm.py`, which imports *after* config —
+  so the env default silently stayed "anthropic". Moved `load_dotenv()` into config.
+  Lesson: env reads belong next to env loading.
+- **Gemini flash** (same persona): completed in ~133s, **$0.03 — ~10× cheaper**.
+  Structured outputs via `responseJsonSchema` worked first try. The `google_search`
+  grounding call hit free-tier quota (RESOURCE_EXHAUSTED) and the pipeline degraded
+  gracefully (recency is optional by design). Added 429/503 retry honoring Google's
+  `retryDelay` for the eval sweep.
+- **Output quality note (both providers)**: the curriculum picked 3 videos / 160 min
+  of a 360-min budget, justifying the headroom as "time to code along" — sensible for
+  a project-based learner, but the assignment's sketch says 4–6 videos ≈ 5h. Logged as
+  an eval-vs-judgment disagreement candidate; may warrant a prompt nudge ("prefer
+  filling 60–90% of budget unless the goal implies hands-on time").
+- YouTube caption IP block STILL active hours later: all 14 finalists had
+  coverage="none"; reasons grounded via chapters instead — the degradation path works,
+  but transcript-grounded curation remains unverified live. Transcripts will self-heal
+  into the cache once the block lifts.
+
+### First eval sweep: 5/7 validated, quota wall on the rest
+Gemini free tier turned out to cap at **20 requests/day** — enough for 4 personas +
+judging before 429s took over (retry-with-retryDelay couldn't save a *daily* cap).
+Results where it ran: all deterministic checks pass (42/42 across 5 personas incl. a
+checks-only pass over the existing weekend_react_dev artifacts), judge 4.86–5.0.
+Edge cases verified by inspection, not just scores: refusal artifact for the explosives
+persona; `goal_already_met=True` + advanced-content pivot for the senior dev; genuinely
+Hindi-language picks for the language-constraint persona. Two findings promoted to
+EVALUATION.md §5: the 3-picks-vs-sketch budget philosophy, and judge scores being
+conditional on bundle completeness (whole sweep ran chapters-only — caption block).
+Remaining: sixty_minute_crunch + travel_blogger full runs, weekend_react_dev judge —
+blocked on quota reset / paid tier / provider switch (user's call: testing is pinned
+to the Gemini key).
+
 <!-- append new entries below as the build progresses -->
