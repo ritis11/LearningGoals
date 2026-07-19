@@ -86,4 +86,9 @@ def curate(
     # normalize budget report to measured numbers (don't trust model arithmetic)
     curriculum.budget.total_minutes = sum(p.watch.minutes for p in curriculum.picks)
     curriculum.budget.budget_minutes = persona.time_budget_minutes
+    # dropped URLs are derived, never model-emitted (same rule as budget arithmetic)
+    by_id = {b.id: b for b in bundles}
+    for d in curriculum.dropped:
+        b = by_id.get(d.video_id)
+        d.url = b.url if b else f"https://www.youtube.com/watch?v={d.video_id}"
     return curriculum

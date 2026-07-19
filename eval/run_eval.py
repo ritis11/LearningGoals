@@ -9,7 +9,7 @@ from curriculum_agent import config, pipeline
 from curriculum_agent.llm import make_llm
 from curriculum_agent.schemas import Persona
 
-from eval.checks import run_checks
+from eval.checks import engagement_stats, run_checks
 from eval.judge import judge_run
 
 JUDGE_DIMS = [
@@ -65,6 +65,7 @@ def run_eval(persona_ids: list[str] | None = None, skip_run: bool = False,
             result["checks"] = checks
             result["checks_passed"] = sum(c["pass"] for c in checks)
             result["checks_total"] = len(checks)
+            result["engagement"] = engagement_stats(run_dir)
             for c in checks:
                 mark = "PASS" if c["pass"] else "FAIL"
                 print(f"  [{mark}] {c['name']}" + (f" — {c['detail']}" if c["detail"] and not c["pass"] else ""))
@@ -89,17 +90,22 @@ def _summary_md(rows: list[dict], stamp: str) -> str:
     lines = [
         f"# Eval run {stamp}",
         "",
-        "| persona | checks | judge avg | cost $ | latency s | notes |",
-        "|---|---|---|---|---|---|",
+        "| persona | checks | judge avg | median views | mean like% | cost $ | latency s | notes |",
+        "|---|---|---|---|---|---|---|---|",
     ]
     for r in rows:
         if "run_error" in r:
-            lines.append(f"| {r['persona']} | — | — | — | — | PIPELINE ERROR: {r['run_error'][:80]} |")
+            lines.append(f"| {r['persona']} | — | — | — | — | — | — | PIPELINE ERROR: {r['run_error'][:80]} |")
             continue
         failed = [c["name"] for c in r.get("checks", []) if not c["pass"]]
+        eng = r.get("engagement") or {}
+        views = eng.get("median_views")
+        ratio = eng.get("mean_like_ratio")
         lines.append(
             f"| {r['persona']} | {r.get('checks_passed')}/{r.get('checks_total')} "
-            f"| {r.get('judge_avg', '—')} | {r.get('cost_usd', '—')} "
+            f"| {r.get('judge_avg', '—')} "
+            f"| {f'{views:,}' if views else '—'} | {f'{ratio:.1%}' if ratio else '—'} "
+            f"| {r.get('cost_usd', '—')} "
             f"| {r.get('run_seconds', '—')} | {('FAILED: ' + ', '.join(failed)) if failed else 'all checks pass'} |"
         )
     return "\n".join(lines)

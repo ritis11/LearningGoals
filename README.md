@@ -17,9 +17,19 @@ uv sync
 # 2. API key (provided with the assignment)
 cp .env.example .env   # then paste the key into .env
 
-# 3. build a curriculum
+# 3a. web UI (recommended) — form in, curriculum out
+uv run curriculum serve            # → http://localhost:8000
+
+# 3b. or the CLI with a persona JSON
 uv run curriculum run test_set/weekend_react_dev.json
 ```
+
+The web UI is a single static page over a small FastAPI service: fill in the goal /
+background / budget, optionally click **Suggest concepts** (one cheap LLM call proposes
+known/unknown lists you can edit), submit, and watch live stage progress until the
+curriculum renders — picks with watch segments and reasons, the considered-but-dropped
+table, and the expertise trajectory. The API is usable directly too:
+`POST /api/curriculum` (persona fields) → `{run_id}`, then poll `GET /api/runs/{run_id}`.
 
 Artifacts land in `outputs/<persona_id>/`:
 - `curriculum.md` — the human-readable plan (picks in order, watch segments, reasons,
@@ -37,6 +47,10 @@ uv run curriculum eval --no-judge   # deterministic checks only (no LLM cost)
 
 No YouTube API key is needed — video data comes via yt-dlp. First runs are network-heavy;
 reruns hit the disk cache in `.cache/` and cost seconds.
+
+By default the content evidence per finalist is **chapters + description + stats**;
+`--transcripts` additionally downloads subtitle text (YouTube rate-limits that endpoint
+aggressively, so it's opt-in — already-cached transcripts are always used).
 
 **Measured cost & latency** (reference persona, cold caches): ~1–2.5 min per curriculum;
 **$0.03 on Gemini flash vs $0.32 on Claude (Haiku 4.5 + Sonnet 5)** for outputs that pass
@@ -80,11 +94,14 @@ pool). Cheap flat search for breadth, full extraction only for the ~14 triaged
 finalists, runs in ~5–8s. This was benchmarked before implementation
 (`experiments/benchmark_youtube_fetch.py`), not assumed.
 
-**Deep content only where it pays.** The rubric's core question is whether inclusion
-reasons reference actual content. Transcripts are token-heavy (raw: up to ~10k tokens
-per video), so triage sees only metadata, while finalists get chapters plus transcripts
-compressed to a per-video budget. Eval enforces the payoff: a groundedness check and a
-judge dimension punish reasons that don't reference real content.
+**Deep content only where it pays — and chapters first.** The rubric's core question
+is whether inclusion reasons reference actual content. Triage sees only metadata;
+finalists get real content evidence. Within that, chapters + descriptions + stats are
+the *primary* source and transcript text is opt-in (`--transcripts`): live operation
+showed YouTube rate-limits its caption endpoint so aggressively that transcript-first
+designs stall, while chapter-grounded reasons proved sufficient to pass every
+groundedness check and judge dimension. Transcripts, when fetched, are compressed to a
+per-video token budget (raw: up to ~10k tokens each) and cached forever.
 
 **Everything external degrades; only search is fatal.** Mid-build, YouTube IP-blocked
 caption downloads for a full day. The architecture treats transcripts, web-search
@@ -115,6 +132,15 @@ provider-blind.
 cached on disk. Consequences: eval reruns are reproducible and near-free, graders can
 re-run the test set in seconds, and the system stops re-triggering the rate limits that
 caused the caption block in the first place.
+
+**Engagement is a floor, not a ranker.** View counts and like-ratio (likes÷views) are
+computed into every finalist bundle and surfaced to triage and the curator with one
+rule: a quality floor and tiebreak between otherwise-equal videos, never the ranking —
+popularity ranks what's popular, not what's right for *this* learner (the assignment's
+own framing). The eval enforces the same floor deterministically (`engagement_floor`:
+<1k views or <0.5% like-ratio flags a pick) and reports median views / mean like-ratio
+per curriculum; thresholds are deliberately low so niche or non-English picks that are
+*right* for a constrained learner don't get punished.
 
 **Property-based evaluation, no golden outputs.** YouTube search is non-deterministic
 over a live corpus, so expected-video-ID tests would rot in weeks. The test set asserts
@@ -154,7 +180,8 @@ and a 10K-users/day cost projection built from accumulated `run_meta` data.
 ## Repo map
 
 ```
-src/curriculum_agent/   the agent (pipeline.py orchestrates; prompts.py has every prompt)
+src/curriculum_agent/   the agent (pipeline.py orchestrates; prompts.py has every prompt;
+                        server.py + static/index.html are the web UI)
 eval/                   checks.py (deterministic), judge.py (LLM), run_eval.py (report)
 test_set/               7 personas + .expected.json property files
 experiments/            pre-implementation benchmarks + smoke tests (kept as evidence)

@@ -29,6 +29,9 @@ MAX_QUERIES = 5              # planner generates 3..MAX_QUERIES
 FINALIST_COUNT = 14          # candidates that get deep fetch + go to the curator
 MIN_VIDEO_SECONDS = 120      # hard filter: shorts / "in 100 seconds" style
 TRANSCRIPT_TOKEN_BUDGET = 2500   # per-video transcript excerpt budget (approx tokens)
+FETCH_TRANSCRIPTS = False    # chapters/descriptions are the primary content source;
+                             # transcript downloads (rate-limited by YouTube) are opt-in
+                             # via --transcripts. Cached transcripts are always used.
 DESCRIPTION_CHAR_LIMIT = 1200    # per-video description trim for curator bundles
 BUDGET_TOLERANCE = 1.05      # curriculum may exceed time budget by at most 5%
 MAX_PICKS = 6

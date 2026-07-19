@@ -2,14 +2,28 @@
 
 import time
 from pathlib import Path
+from typing import Callable
 
 from . import config, curator, guard, planner, render, triage, youtube
 from .llm import make_llm
 from .schemas import Persona, Refusal
 
+# human-readable stage lines for progress consumers (web UI)
+_STAGE_LABELS = {
+    "guard": "checking the goal",
+    "recency": "researching what's current",
+    "plan": "building the topic plan",
+    "search": "searching YouTube",
+    "triage": "triaging candidates",
+    "deep_fetch": "fetching video details",
+    "curate": "curating the final picks",
+}
+
 
 def run(persona: Persona, use_cache: bool = True, output_root: Path | None = None,
-        provider: str = config.DEFAULT_PROVIDER) -> Path:
+        provider: str = config.DEFAULT_PROVIDER,
+        transcripts: bool = config.FETCH_TRANSCRIPTS,
+        on_stage: Callable[[str], None] | None = None) -> Path:
     """Runs the full pipeline; returns the run directory with all artifacts."""
     run_dir = (output_root or config.OUTPUT_DIR) / persona.persona_id
     llm = make_llm(provider)
@@ -18,6 +32,8 @@ def run(persona: Persona, use_cache: bool = True, output_root: Path | None = Non
     t_run = time.perf_counter()
 
     def timed(name: str, fn, *args, **kwargs):
+        if on_stage:
+            on_stage(_STAGE_LABELS.get(name, name))
         t0 = time.perf_counter()
         out = fn(*args, **kwargs)
         stage_seconds[name] = round(time.perf_counter() - t0, 2)
@@ -62,7 +78,8 @@ def run(persona: Persona, use_cache: bool = True, output_root: Path | None = Non
     )
     lang_code = _language_code(language) or "en"
     infos = timed("deep_fetch", youtube.fetch_many, finalist_ids, use_cache, lang_code)
-    bundles = [youtube.build_content_bundle(i, lang_code) for i in infos.values()]
+    bundles = [youtube.build_content_bundle(i, lang_code, fetch_transcripts=transcripts)
+               for i in infos.values()]
     if not bundles:
         raise RuntimeError("deep fetch failed for every finalist")
 

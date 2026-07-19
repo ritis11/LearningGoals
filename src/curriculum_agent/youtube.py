@@ -20,6 +20,7 @@ import yt_dlp
 from .config import (
     CACHE_DIR,
     DESCRIPTION_CHAR_LIMIT,
+    FETCH_TRANSCRIPTS,
     FETCH_WORKERS,
     RESULTS_PER_QUERY,
     TRANSCRIPT_TOKEN_BUDGET,
@@ -281,9 +282,10 @@ def _compress(lines: list[tuple[int, str]], chapters: list[Chapter],
     return "\n".join(pieces), "sampled"
 
 
-def _build_transcript(info: dict, chapters: list[Chapter],
-                      language: str) -> tuple[str, str, str, str]:
+def _build_transcript(info: dict, chapters: list[Chapter], language: str,
+                      download: bool = True) -> tuple[str, str, str, str]:
     """Full pipeline: select -> download (cached) -> dedupe -> compress. Never raises.
+    With download=False, only already-cached transcripts are used (no network).
     Returns (excerpt, coverage, source, language_key)."""
     global _consecutive_failures
     source, lang_key, url = _select_track(info, language)
@@ -297,6 +299,8 @@ def _build_transcript(info: dict, chapters: list[Chapter],
     if lines is not None:
         lines = [(int(t), s) for t, s in lines]
     else:
+        if not download:
+            return "", "none", "none", ""
         if _consecutive_failures >= _BREAKER_LIMIT:
             log.warning("transcript breaker open; skipping %s", info.get("id"))
             return "", "none", "none", ""
@@ -332,14 +336,21 @@ def _build_transcript(info: dict, chapters: list[Chapter],
 
 # --- curator bundle ------------------------------------------------------------------
 
-def build_content_bundle(info: dict, language: str = "en") -> VideoContent:
-    """Assemble the curator's per-video bundle from a pruned info dict."""
+def build_content_bundle(info: dict, language: str = "en",
+                         fetch_transcripts: bool = FETCH_TRANSCRIPTS) -> VideoContent:
+    """Assemble the curator's per-video bundle from a pruned info dict.
+
+    Chapters + description + stats are the primary content source; transcript text is
+    only downloaded when fetch_transcripts=True (already-cached transcripts are used
+    either way)."""
     chapters = [
         Chapter(title=c.get("title", ""), start_s=int(c.get("start_time") or 0),
                 end_s=int(c.get("end_time") or 0))
         for c in info.get("chapters") or []
     ]
-    excerpt, coverage, source, lang_key = _build_transcript(info, chapters, language)
+    excerpt, coverage, source, lang_key = _build_transcript(
+        info, chapters, language, download=fetch_transcripts)
+    views, likes = info.get("view_count"), info.get("like_count")
     return VideoContent(
         id=info["id"],
         title=info.get("title") or "",
@@ -347,8 +358,9 @@ def build_content_bundle(info: dict, language: str = "en") -> VideoContent:
         duration_s=int(info.get("duration") or 0),
         channel=info.get("channel") or "",
         channel_followers=info.get("channel_follower_count"),
-        view_count=info.get("view_count"),
-        like_count=info.get("like_count"),
+        view_count=views,
+        like_count=likes,
+        like_ratio=round(likes / views, 4) if likes and views else None,
         upload_date=info.get("upload_date") or "",
         description_excerpt=(info.get("description") or "")[:DESCRIPTION_CHAR_LIMIT],
         chapters=chapters,

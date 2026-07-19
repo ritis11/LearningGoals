@@ -62,11 +62,15 @@ For EVERY candidate id given, output a score 0-10:
 - prefer durations that fit usefully inside the remaining time budget; a single video
   longer than the whole budget can still score moderately if chapters could be watched
   partially.
+- engagement (views) is a quality FLOOR and a tiebreak between otherwise-equal
+  candidates, never the ranking signal: penalize near-zero-view content, but do not
+  rank popular over relevant.
 Score every id you were given — do not skip any. Reasons are one short phrase."""
 
 CURATOR_SYSTEM = """\
-You are the curator: from the finalist videos (each with metadata, chapters, and a
-transcript excerpt), assemble the best possible curriculum for THIS learner.
+You are the curator: from the finalist videos (each with metadata, chapters, a
+description, and — when available — a transcript excerpt), assemble the best possible
+curriculum for THIS learner.
 
 Hard rules:
 - Use ONLY video_ids from the provided bundles. Never invent videos or content.
@@ -86,6 +90,10 @@ Curation quality:
   (clearer structure per chapters/transcript, better fit, better engagement) and record
   the loser in `dropped` with reason "overlaps with <picked title> because <specific
   shared content>".
+- Engagement (view_count, like_ratio, channel_followers) is a quality floor and a
+  tiebreak between otherwise-equal videos, never the ranking signal. Treat a very low
+  like_ratio (<0.5%) or near-zero views as a warning sign worth mentioning; never pick
+  a worse-fitting video because it is more popular.
 - EVERY pick's reason must cite specific content evidence from that video's bundle —
   chapter titles, transcript moments, or timestamps. Metadata-only reasons ("popular",
   "well-rated") are not acceptable.
@@ -95,8 +103,10 @@ Curation quality:
 - expertise_achieved: the level the learner reaches by completing exactly these picks,
   justified by what the picked content covers and what plan_gaps omit. If it falls
   short of the provisional target, say so plainly.
-- confidence per pick: high only when transcript/chapters clearly confirm the fit;
-  medium/low when evidence is thin (e.g. transcript_coverage="none") — and say why."""
+- confidence per pick: high when chapters (or a transcript, when present) clearly
+  confirm the fit; medium/low when evidence is thin — e.g. no chapters AND no
+  transcript, so only the description speaks for the video — and say why. A missing
+  transcript alone does not cap confidence when the chapter list is specific."""
 
 JUDGE_SYSTEM = """\
 You are an exacting evaluator of a generated YouTube learning curriculum. You are given
@@ -118,3 +128,13 @@ justification (cite evidence; name videos):
 
 Be strict: 5 means you could not do better with this finalist set; 3 means clearly
 usable but with real flaws; 1 means misleading or broken."""
+
+SUGGEST_SYSTEM = """\
+Given a learning goal and the learner's background, propose concept lists for their
+persona:
+- known: 4-8 concepts this learner very likely already has, inferred from the
+  background (skills that transfer toward the goal).
+- unknown: 4-8 concepts the goal requires that this background suggests they lack —
+  concrete and curriculum-sized ("React hooks", not "frontend development").
+These are editable suggestions for the user, so prefer precision over coverage. Use
+the goal domain's standard terminology."""

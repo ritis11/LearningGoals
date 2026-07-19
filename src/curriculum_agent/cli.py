@@ -19,7 +19,14 @@ def main() -> None:
     p_run.add_argument("--provider", choices=["anthropic", "gemini"],
                        default=config.DEFAULT_PROVIDER,
                        help="LLM provider (default: $CURRICULUM_PROVIDER or anthropic)")
+    p_run.add_argument("--transcripts", action="store_true",
+                       help="also download subtitle text for finalists (rate-limited "
+                            "by YouTube; chapters/descriptions are used regardless)")
     p_run.add_argument("--output-dir", type=Path, default=None)
+
+    p_serve = sub.add_parser("serve", help="start the web UI + API")
+    p_serve.add_argument("--port", type=int, default=8000)
+    p_serve.add_argument("--host", default="127.0.0.1")
 
     p_eval = sub.add_parser("eval", help="run the evaluation harness over test_set/")
     p_eval.add_argument("--personas", nargs="*", default=None, help="subset of persona ids")
@@ -41,7 +48,14 @@ def main() -> None:
         print(f"building curriculum for '{persona.persona_id}' "
               f"(budget {persona.time_budget_minutes} min)")
         pipeline.run(persona, use_cache=not args.no_cache, output_root=args.output_dir,
-                     provider=args.provider)
+                     provider=args.provider, transcripts=args.transcripts)
+
+    elif args.command == "serve":
+        import uvicorn
+
+        from .server import app
+        print(f"Web UI: http://{args.host}:{args.port}")
+        uvicorn.run(app, host=args.host, port=args.port, log_level="warning")
 
     elif args.command == "eval":
         # imported lazily: eval/ ships alongside src/ but isn't part of the package

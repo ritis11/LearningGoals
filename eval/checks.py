@@ -3,9 +3,16 @@ the suite never raises on a failing check — failures are data, not crashes."""
 
 import json
 import re
+import statistics
 from pathlib import Path
 
 from curriculum_agent import config
+
+# Engagement is a quality FLOOR, deliberately low: it should only catch egregious
+# picks (abandoned/unwatched or disliked content), never punish niche or non-English
+# videos that are the right choice for a constrained learner. See EVALUATION.md §6.
+ENGAGEMENT_MIN_VIEWS = 1000
+ENGAGEMENT_MIN_LIKE_RATIO = 0.005  # healthy tutorials typically run 2-5%
 
 STOPWORDS = {
     "the", "a", "an", "and", "or", "of", "to", "in", "for", "with", "this", "that",
@@ -26,6 +33,34 @@ def _content_ngrams(bundle: dict) -> set[str]:
            bundle.get("title", "")]
     ).lower()
     return {w for w in re.findall(r"[a-z][a-z0-9'-]{3,}", text) if w not in STOPWORDS}
+
+
+def engagement_stats(run_dir: Path) -> dict:
+    """Per-pick engagement from cached video metadata (no network, no LLM).
+    Returns {picks: [{title, views, like_ratio}], median_views, mean_like_ratio}."""
+    curriculum_path = run_dir / "curriculum.json"
+    if not curriculum_path.exists():
+        return {}
+    picks = json.loads(curriculum_path.read_text())["curriculum"]["picks"]
+    rows = []
+    for p in picks:
+        cache_file = config.CACHE_DIR / "videos" / f"{p['video_id']}.json"
+        if not cache_file.exists():
+            continue
+        info = json.loads(cache_file.read_text())
+        views, likes = info.get("view_count"), info.get("like_count")
+        rows.append({
+            "title": p["title"],
+            "views": views,
+            "like_ratio": round(likes / views, 4) if likes and views else None,
+        })
+    views_list = [r["views"] for r in rows if r["views"]]
+    ratios = [r["like_ratio"] for r in rows if r["like_ratio"] is not None]
+    return {
+        "picks": rows,
+        "median_views": int(statistics.median(views_list)) if views_list else None,
+        "mean_like_ratio": round(statistics.mean(ratios), 4) if ratios else None,
+    }
 
 
 def run_checks(run_dir: Path, expected: dict, persona: dict) -> list[dict]:
@@ -108,6 +143,26 @@ def run_checks(run_dir: Path, expected: dict, persona: dict) -> list[dict]:
         not ungrounded,
         f"reasons sharing no meaningful term with video content: {ungrounded}" if ungrounded
         else f"{len(grounded)} picks grounded (n-gram proxy — see EVALUATION.md limits)",
+    ))
+
+    # --- engagement quality floor -------------------------------------------------------
+    stats = engagement_stats(run_dir)
+    weak = [
+        r for r in stats.get("picks", [])
+        if (r["views"] is not None and r["views"] < ENGAGEMENT_MIN_VIEWS)
+        or (r["like_ratio"] is not None and r["like_ratio"] < ENGAGEMENT_MIN_LIKE_RATIO)
+    ]
+    per_pick = "; ".join(
+        f"{r['title'][:40]}: {r['views'] or '?'} views"
+        + (f", {r['like_ratio']:.1%} likes" if r["like_ratio"] is not None else "")
+        for r in stats.get("picks", [])
+    )
+    checks.append(_check(
+        "engagement_floor",
+        not weak,
+        (f"below floor (<{ENGAGEMENT_MIN_VIEWS} views or "
+         f"<{ENGAGEMENT_MIN_LIKE_RATIO:.1%} like-ratio): "
+         f"{[r['title'] for r in weak]} | " if weak else "") + per_pick,
     ))
 
     # --- honesty fields present ------------------------------------------------------

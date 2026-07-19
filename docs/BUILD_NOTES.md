@@ -187,4 +187,44 @@ Remaining: sixty_minute_crunch + travel_blogger full runs, weekend_react_dev jud
 blocked on quota reset / paid tier / provider switch (user's call: testing is pinned
 to the Gemini key).
 
+## 2026-07-19 — Web UI, chapters-first pivot, engagement floor
+
+### The pipeline grew a face: FastAPI + one static page
+Persona JSON was the right *engine* contract but a bad human interface. Added
+`curriculum serve`: a small FastAPI service (`server.py`) + a single hand-written
+`static/index.html` (vanilla JS, no build step, no CDN). The persona became a real API:
+`POST /api/curriculum` → `{run_id}`, `GET /api/runs/{id}` polled every 3s. The
+pipeline gained a 5-line `on_stage` callback so the browser shows live progress
+("triaging candidates…"). The mind map's "auto-populate unknown concepts" UI idea
+shipped as `POST /api/suggest` — one fast-model call, button-triggered only (quota).
+Deliberately rejected: React/node toolchain (nothing here needs it), websockets
+(polling is fine at this latency), a DB (in-memory jobs + disk artifacts).
+Verified live through the API: suggest returned sensible transferable-knowns +
+concrete unknowns; a full reference-persona run finished in 52s / $0.10 on warm
+caches with stage progression streaming.
+
+### Chapters-first: accepting what operations kept telling us
+Every live day hit the same wall: YouTube's caption endpoint rate-limits per-IP so
+hard that transcript-first fetching stalls runs and produces nothing — while chapters,
+descriptions, and stats arrive reliably in the same metadata fetch, and every eval
+check + judge score passed on chapter-grounded curation. Decision: flip the default —
+`FETCH_TRANSCRIPTS = False`; transcript text is opt-in (`--transcripts` / API field),
+still paced/breakered/cached/refresh-on-expiry when on, and cached transcripts are
+always used for free. Curator confidence rules updated: a specific chapter list now
+supports high confidence on its own. (Also re-reviewed the root `test_youtube.py`
+single-full-search approach: it doesn't fix subtitles — the text is a separate
+rate-limited download regardless — and the pre-build benchmark had it ~10× slower per
+candidate pool. Verdict unchanged; nothing adopted.)
+
+### Engagement: discarded as a ranker, adopted as a floor
+"Use likes/views for quality" was originally discarded (popularity ≠ fit). The
+resolution that survived scrutiny: it's a *negative* signal worth automating, not a
+positive one. `like_ratio` (likes÷views) is now computed into every bundle; prompts
+tell triage/curator it's a floor + tiebreak, never the ranking; and the eval gained a
+deterministic `engagement_floor` check (<1k views or <0.5% like-ratio flags a pick)
+plus median-views / mean-like-ratio columns in the summary table. Thresholds set low
+on purpose so niche/non-English picks that fit a constrained learner are never
+punished for not being viral. First measured numbers (reference persona artifacts):
+12/12 checks, median 128,591 views, mean like-ratio 2.3% — zero LLM cost to evaluate.
+
 <!-- append new entries below as the build progresses -->

@@ -57,7 +57,8 @@ def curriculum_markdown(persona: Persona, plan: TopicPlan, cur: Curriculum) -> s
     lines += ["## Considered but dropped", ""]
     lines += ["| Video | Why it lost |", "|---|---|"]
     for d in cur.dropped:
-        lines.append(f"| {d.title} | {d.reason} |")
+        title = f"[{d.title}]({d.url})" if d.url else d.title
+        lines.append(f"| {title} | {d.reason} |")
     lines.append("")
     return "\n".join(lines)
 

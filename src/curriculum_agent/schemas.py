@@ -126,6 +126,7 @@ class VideoContent(BaseModel):
     channel_followers: Optional[int] = None
     view_count: Optional[int] = None
     like_count: Optional[int] = None
+    like_ratio: Optional[float] = None  # likes/views; quality floor + tiebreak signal
     upload_date: str = ""            # YYYYMMDD
     description_excerpt: str = ""
     chapters: list[Chapter] = []
@@ -180,6 +181,7 @@ class Pick(BaseModel):
 class DroppedVideo(BaseModel):
     video_id: str
     title: str
+    url: str = ""  # set programmatically from video_id after validation — never trusted from the LLM
     reason: str = Field(
         description="Why it lost. For dedup: 'overlaps with <picked title> because "
         "<specific shared content>'"
@@ -236,3 +238,10 @@ class JudgeScores(BaseModel):
     selection_quality: JudgeDimension
     expertise_claim_grounded: JudgeDimension
     overall_comment: str
+
+
+# --- web UI: concept suggestions (LLM output) -------------------------------------
+
+class ConceptSuggestions(BaseModel):
+    known: list[str] = Field(description="Concepts the learner likely already has")
+    unknown: list[str] = Field(description="Goal-required concepts they likely lack")

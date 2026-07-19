@@ -35,6 +35,7 @@ rot within weeks and punish correct behavior.
 | topic terms present in picks | curriculum is about the goal at all |
 | reasons share content n-grams with the video's chapters/transcript | cheap fabrication detector (proxy — see §4) |
 | refusal present/absent as expected | safety guard works and doesn't overfire |
+| engagement floor: no pick <1k views or <0.5% like-ratio | catches abandoned/disliked content; the summary also reports median views + mean like-ratio per curriculum (§6 for why it's a floor, not a ranker) |
 | dropped-list non-empty; expertise claim non-empty | the reasoning trace is real, not decorative |
 
 ### Judge dimensions (1–5 each)
@@ -88,12 +89,14 @@ spread for outputs that pass the same checks (see §5 for quality-difference cav
 - **One-run variance.** Each eval is a single sample per persona; LLM and search
   non-determinism mean a pass could be luck. Re-running with warm caches keeps search
   fixed but not model outputs.
-- **Transcript availability is operational, not guaranteed.** YouTube IP-blocks its
-  caption endpoint under load (observed live — see `docs/BUILD_NOTES.md`). During a
-  block the pipeline degrades to chapter/description-grounded reasons with downgraded
-  confidence rather than failing; the eval can't distinguish "reasons are metadata-ish
-  because the video has no captions" from "because captions were blocked today" without
-  reading `transcript_coverage` in the trace.
+- **Transcript grounding is now opt-in (`--transcripts`), so judge scores are
+  conditional on chapters.** YouTube rate-limits its caption endpoint so aggressively
+  (observed live — see `docs/BUILD_NOTES.md`) that transcript fetching is off by
+  default; the standard evidence base is chapters + descriptions + stats. Groundedness
+  checks and judge dimensions therefore measure "grounded in what was available" —
+  a curriculum built from rich chapter lists and one built from thin descriptions can
+  score alike; read `transcript_coverage` and chapter counts in the trace alongside
+  the scores.
 
 ## 5. Where eval and human judgment disagreed
 
@@ -119,10 +122,17 @@ spread for outputs that pass the same checks (see §5 for quality-difference cav
 
 ## 6. Signals considered and discarded
 
-- **View count / like ratio as a ranking signal.** Deliberately demoted to a weak
-  tiebreak: popularity ranks what's popular, not what's right for *this* learner —
-  that's the assignment's own framing of the problem. Triage sees the numbers but is
-  prompted to prioritize relevance and level fit.
+- **View count / like ratio as a ranking signal — discarded; adopted as a FLOOR.**
+  Popularity ranks what's popular, not what's right for *this* learner — the
+  assignment's own framing. But near-zero views or a sub-0.5% like-ratio is a real
+  *negative* signal (abandoned or disliked content), so engagement now enters exactly
+  twice: (a) prompts tell triage/curator it is a quality floor and tiebreak between
+  otherwise-equal picks, never the ranking; (b) the deterministic `engagement_floor`
+  check (thresholds: 1,000 views, 0.5% like-ratio — module constants in
+  `eval/checks.py`) flags egregious picks and the report shows median views / mean
+  like-ratio per curriculum. Thresholds are deliberately low: a Hindi-language Excel
+  tutorial that is *right* for the learner legitimately has fewer views than a viral
+  English one, and the floor must never punish that.
 - **Golden video IDs per persona.** Rejected: non-deterministic search + a live corpus
   make exact-ID assertions rot; property assertions replaced them.
 - **Comment mining as an MVP quality signal.** Valuable ("outdated as of v19" comments)
