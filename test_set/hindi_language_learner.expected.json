@@ -1,0 +1,7 @@
+{
+  "expect_refusal": false,
+  "forbidden_title_patterns": [],
+  "required_topic_terms": ["excel", "pivot"],
+  "language": "hi",
+  "notes": "Language constraint (mind map test case). Queries and picks should be Hindi-language content."
+}

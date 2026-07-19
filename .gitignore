@@ -222,3 +222,10 @@ __marimo__/
 rc_curriculum_assignment.pdf
 systemdiag.excalidraw
 
+
+# project
+.cache/
+outputs/*
+!outputs/weekend_react_dev/
+eval/results/
+.env

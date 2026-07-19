@@ -1,0 +1,559 @@
+{
+  "hard_filtered": [
+    {
+      "id": "4nVoLX2taFg",
+      "title": "React Native Full Course 2026 | Build, Publish and Monetize a Full Stack Mobile App to App Store",
+      "why": "more than 2x the total time budget"
+    },
+    {
+      "id": "E9HCmMolcNs",
+      "title": "Sprout \ud83c\udf31 \u2013 Build Sustainable Habits with Data | Conscious Consumption Tracker",
+      "why": "under 120s (short-form)"
+    },
+    {
+      "id": "PQnbtnsYUho",
+      "title": "Build a Full-Stack MERN Expense Tracker | React, Node.js, MongoDB, Express | MERN Project",
+      "why": "more than 2x the total time budget"
+    },
+    {
+      "id": "wYpCWwD1oz0",
+      "title": "Build a COMPLETE React Admin Dashboard App | React, Material UI, Data Grid, Light & Dark Mode",
+      "why": "more than 2x the total time budget"
+    },
+    {
+      "id": "S9bCbCRyzCo",
+      "title": "How To Build & Deploy Full Stack AI Fitness App Using React JS & Strapi (Step-by-Step Tutorial)",
+      "why": "more than 2x the total time budget"
+    },
+    {
+      "id": "50NN3d-Ne1U",
+      "title": "Build and Deploy Full Stack Project Management App using React js | PERN Stack Project 2026",
+      "why": "more than 2x the total time budget"
+    }
+  ],
+  "triage_scores": [
+    {
+      "id": "2cW8N66ude4",
+      "score": 3,
+      "reason": "Too short and low engagement for a comprehensive build",
+      "constraint_violation": false
+    },
+    {
+      "id": "9aTRnV6g0eQ",
+      "score": 8,
+      "reason": "Excellent project-based React introduction, slightly exceeds time budget",
+      "constraint_violation": false
+    },
+    {
+      "id": "CqPhXl5BHSU",
+      "score": 3,
+      "reason": "Part 4 of a series using unrelated UI libraries with low views",
+      "constraint_violation": false
+    },
+    {
+      "id": "088ty7TYxCE",
+      "score": 4,
+      "reason": "Too specific to a search filter, not a full app build",
+      "constraint_violation": false
+    },
+    {
+      "id": "b0IZo2Aho9Y",
+      "score": 5,
+      "reason": "Useful patterns for engineers but not a step-by-step project build",
+      "constraint_violation": false
+    },
+    {
+      "id": "JvrenJBnjnQ",
+      "score": 4,
+      "reason": "Focuses heavily on backend stack which the learner already knows",
+      "constraint_violation": false
+    },
+    {
+      "id": "3qmUoOC0wUU",
+      "score": 2,
+      "reason": "Too short and uses Redux instead of standard local storage state",
+      "constraint_violation": false
+    },
+    {
+      "id": "X92kk5iT8CM",
+      "score": 9,
+      "reason": "Perfect match: React + Vite, Local Storage build within the time budget",
+      "constraint_violation": false
+    },
+    {
+      "id": "ur4X0IyBsnQ",
+      "score": 2,
+      "reason": "Vanilla JS instead of React",
+      "constraint_violation": false
+    },
+    {
+      "id": "K81540gfyGI",
+      "score": 4,
+      "reason": "Focuses on ChatGPT integration, with extremely low views",
+      "constraint_violation": false
+    },
+    {
+      "id": "_FFkaBTqJto",
+      "score": 2,
+      "reason": "Vanilla JS instead of React",
+      "constraint_violation": false
+    },
+    {
+      "id": "35LuyXrByPM",
+      "score": 3,
+      "reason": "Segment of a series relying on Redux and Express backend",
+      "constraint_violation": false
+    },
+    {
+      "id": "cqR3QQVQhAk",
+      "score": 2,
+      "reason": "Vanilla JS instead of React",
+      "constraint_violation": false
+    },
+    {
+      "id": "6x6d4L_Z-Ds",
+      "score": 2,
+      "reason": "Vanilla JS instead of React",
+      "constraint_violation": false
+    },
+    {
+      "id": "hgts_74JjVM",
+      "score": 5,
+      "reason": "Very niche concept with low views compared to full build",
+      "constraint_violation": false
+    },
+    {
+      "id": "oeQ0btgW_7c",
+      "score": 2,
+      "reason": "Vanilla JS instead of React",
+      "constraint_violation": false
+    },
+    {
+      "id": "MJTIavFZkLQ",
+      "score": 2,
+      "reason": "Vanilla JS instead of React",
+      "constraint_violation": false
+    },
+    {
+      "id": "zpKdI7fQ3lA",
+      "score": 3,
+      "reason": "Too short and low engagement to offer a proper code-along",
+      "constraint_violation": false
+    },
+    {
+      "id": "74ThcF5JqzU",
+      "score": 7,
+      "reason": "High-quality hook implementation guide perfect for experienced devs",
+      "constraint_violation": false
+    },
+    {
+      "id": "HnXPKtro4SM",
+      "score": 5,
+      "reason": "An abstract hook summary rather than a hands-on project build",
+      "constraint_violation": false
+    },
+    {
+      "id": "uRDujdtVfJs",
+      "score": 8,
+      "reason": "Excellent, highly targeted guide on React LocalStorage state syncing",
+      "constraint_violation": false
+    },
+    {
+      "id": "vXu5FSdq90s",
+      "score": 4,
+      "reason": "A conceptual guide on useEffect rather than a project tutorial",
+      "constraint_violation": false
+    },
+    {
+      "id": "g_47IcYzDfA",
+      "score": 6,
+      "reason": "Good topic match and duration, but has very low engagement",
+      "constraint_violation": false
+    },
+    {
+      "id": "N7rs5F4f6FA",
+      "score": 6,
+      "reason": "Good explanation of Local Storage but lacks the full project context",
+      "constraint_violation": false
+    },
+    {
+      "id": "RDAFJ5ToMmQ",
+      "score": 8,
+      "reason": "Great tutorial on React state persistence, perfect for an engineer",
+      "constraint_violation": false
+    },
+    {
+      "id": "rL0CbLv2UTs",
+      "score": 3,
+      "reason": "Concept-heavy lesson with very low engagement",
+      "constraint_violation": false
+    },
+    {
+      "id": "_xO3BkiWdJI",
+      "score": 7,
+      "reason": "Relevant project build with local storage, fits duration well",
+      "constraint_violation": false
+    },
+    {
+      "id": "qzi-X3quu3w",
+      "score": 5,
+      "reason": "An intermediate course episode incorporating unnecessary Axios concepts",
+      "constraint_violation": false
+    },
+    {
+      "id": "fTP2gi7e3k8",
+      "score": 7,
+      "reason": "Fast, high-density React LocalStorage hook guide from an expert",
+      "constraint_violation": false
+    },
+    {
+      "id": "1aPm1ZcwlW8",
+      "score": 4,
+      "reason": "Part of a course with low views; not a standalone app build",
+      "constraint_violation": false
+    }
+  ],
+  "finalist_ids": [
+    "X92kk5iT8CM",
+    "9aTRnV6g0eQ",
+    "uRDujdtVfJs",
+    "RDAFJ5ToMmQ",
+    "74ThcF5JqzU",
+    "_xO3BkiWdJI",
+    "fTP2gi7e3k8",
+    "g_47IcYzDfA",
+    "N7rs5F4f6FA",
+    "b0IZo2Aho9Y",
+    "hgts_74JjVM",
+    "HnXPKtro4SM",
+    "qzi-X3quu3w",
+    "088ty7TYxCE"
+  ],
+  "candidates": [
+    {
+      "id": "2cW8N66ude4",
+      "title": "Productivo - Premium Productivity Web App | React + TypeScript + Tailwind CSS",
+      "url": "https://www.youtube.com/watch?v=2cW8N66ude4",
+      "duration_s": 415,
+      "channel": "100xsite",
+      "view_count": 7,
+      "source_query": "react vite typescript tailwind habit tracker tutorial"
+    },
+    {
+      "id": "9aTRnV6g0eQ",
+      "title": "Learn React With This One Project",
+      "url": "https://www.youtube.com/watch?v=9aTRnV6g0eQ",
+      "duration_s": 6315,
+      "channel": "Web Dev Simplified",
+      "view_count": 56659,
+      "source_query": "react vite typescript tailwind habit tracker tutorial"
+    },
+    {
+      "id": "CqPhXl5BHSU",
+      "title": "Creating an app to help create habits with React, Firebase, Chakra UI and Capacitor: Day 4",
+      "url": "https://www.youtube.com/watch?v=CqPhXl5BHSU",
+      "duration_s": 5323,
+      "channel": "Taishi from Japan \ud83c\uddef\ud83c\uddf5",
+      "view_count": 29,
+      "source_query": "react vite typescript tailwind habit tracker tutorial"
+    },
+    {
+      "id": "4nVoLX2taFg",
+      "title": "React Native Full Course 2026 | Build, Publish and Monetize a Full Stack Mobile App to App Store",
+      "url": "https://www.youtube.com/watch?v=4nVoLX2taFg",
+      "duration_s": 13395,
+      "channel": "JavaScript Mastery",
+      "view_count": 285362,
+      "source_query": "react vite typescript tailwind habit tracker tutorial"
+    },
+    {
+      "id": "088ty7TYxCE",
+      "title": "React Search Filter with Tailwind CSS! [EASY] (Step By Step)",
+      "url": "https://www.youtube.com/watch?v=088ty7TYxCE",
+      "duration_s": 919,
+      "channel": "CodeWithMasood",
+      "view_count": 2041,
+      "source_query": "react vite typescript tailwind habit tracker tutorial"
+    },
+    {
+      "id": "b0IZo2Aho9Y",
+      "title": "10 React Antipatterns to Avoid - Code This, Not That!",
+      "url": "https://www.youtube.com/watch?v=b0IZo2Aho9Y",
+      "duration_s": 535,
+      "channel": "Fireship",
+      "view_count": 872537,
+      "source_query": "react vite typescript tailwind habit tracker tutorial"
+    },
+    {
+      "id": "E9HCmMolcNs",
+      "title": "Sprout \ud83c\udf31 \u2013 Build Sustainable Habits with Data | Conscious Consumption Tracker",
+      "url": "https://www.youtube.com/watch?v=E9HCmMolcNs",
+      "duration_s": 87,
+      "channel": "Tech HackThem",
+      "view_count": 95,
+      "source_query": "react vite typescript tailwind habit tracker tutorial"
+    },
+    {
+      "id": "PQnbtnsYUho",
+      "title": "Build a Full-Stack MERN Expense Tracker | React, Node.js, MongoDB, Express | MERN Project",
+      "url": "https://www.youtube.com/watch?v=PQnbtnsYUho",
+      "duration_s": 15021,
+      "channel": "Time To Program",
+      "view_count": 255726,
+      "source_query": "react vite typescript tailwind habit tracker tutorial"
+    },
+    {
+      "id": "wYpCWwD1oz0",
+      "title": "Build a COMPLETE React Admin Dashboard App | React, Material UI, Data Grid, Light & Dark Mode",
+      "url": "https://www.youtube.com/watch?v=wYpCWwD1oz0",
+      "duration_s": 14665,
+      "channel": "EdRoh",
+      "view_count": 1950710,
+      "source_query": "react vite typescript tailwind habit tracker tutorial"
+    },
+    {
+      "id": "JvrenJBnjnQ",
+      "title": "Build a Todo App with the PERN Stack (PostgreSQL, Express, React, Node.js)",
+      "url": "https://www.youtube.com/watch?v=JvrenJBnjnQ",
+      "duration_s": 4971,
+      "channel": "Web Dev Bey",
+      "view_count": 9146,
+      "source_query": "react vite typescript tailwind habit tracker tutorial"
+    },
+    {
+      "id": "S9bCbCRyzCo",
+      "title": "How To Build & Deploy Full Stack AI Fitness App Using React JS & Strapi (Step-by-Step Tutorial)",
+      "url": "https://www.youtube.com/watch?v=S9bCbCRyzCo",
+      "duration_s": 28637,
+      "channel": "GreatStack",
+      "view_count": 36823,
+      "source_query": "react vite typescript tailwind habit tracker tutorial"
+    },
+    {
+      "id": "50NN3d-Ne1U",
+      "title": "Build and Deploy Full Stack Project Management App using React js | PERN Stack Project 2026",
+      "url": "https://www.youtube.com/watch?v=50NN3d-Ne1U",
+      "duration_s": 20207,
+      "channel": "GreatStack",
+      "view_count": 144788,
+      "source_query": "react vite typescript tailwind habit tracker tutorial"
+    },
+    {
+      "id": "3qmUoOC0wUU",
+      "title": "Habit-tracker app with the help of react and redux",
+      "url": "https://www.youtube.com/watch?v=3qmUoOC0wUU",
+      "duration_s": 151,
+      "channel": "Technical Ninjas",
+      "view_count": 50,
+      "source_query": "build habit tracker react local storage step by step"
+    },
+    {
+      "id": "X92kk5iT8CM",
+      "title": "Build a Complete To-Do List App with React + Vite | Dashboard, Reminders & Local Storage Tutorial",
+      "url": "https://www.youtube.com/watch?v=X92kk5iT8CM",
+      "duration_s": 1619,
+      "channel": "DevCrafted Learn-Build-Deploy",
+      "view_count": 1275,
+      "source_query": "build habit tracker react local storage step by step"
+    },
+    {
+      "id": "ur4X0IyBsnQ",
+      "title": "[Part 2/2] Beginner Kawaii Habit Tracker Web Dev HTML CSS Javascript Tutorial",
+      "url": "https://www.youtube.com/watch?v=ur4X0IyBsnQ",
+      "duration_s": 1210,
+      "channel": "Cozy Olive Studios",
+      "view_count": 7002,
+      "source_query": "build habit tracker react local storage step by step"
+    },
+    {
+      "id": "K81540gfyGI",
+      "title": "Build a Habit Tracker with React & ChatGPT | Beginner Web App Tutorial",
+      "url": "https://www.youtube.com/watch?v=K81540gfyGI",
+      "duration_s": 1604,
+      "channel": "Saman AI Lab",
+      "view_count": 2,
+      "source_query": "build habit tracker react local storage step by step"
+    },
+    {
+      "id": "_FFkaBTqJto",
+      "title": "Habit Tracking App Part 1 (Vanilla JavaScript Project)",
+      "url": "https://www.youtube.com/watch?v=_FFkaBTqJto",
+      "duration_s": 1375,
+      "channel": "Coding in Public",
+      "view_count": 6184,
+      "source_query": "build habit tracker react local storage step by step"
+    },
+    {
+      "id": "35LuyXrByPM",
+      "title": "localStorage + Sign-in Frontend: Building a Habit Tracker with React/Redux/Express Part 9",
+      "url": "https://www.youtube.com/watch?v=35LuyXrByPM",
+      "duration_s": 555,
+      "channel": "Taha Khan | AI Automation",
+      "view_count": 529,
+      "source_query": "build habit tracker react local storage step by step"
+    },
+    {
+      "id": "cqR3QQVQhAk",
+      "title": "Habit Tracking App Part 2 (Vanilla JavaScript Project)",
+      "url": "https://www.youtube.com/watch?v=cqR3QQVQhAk",
+      "duration_s": 2049,
+      "channel": "Coding in Public",
+      "view_count": 1781,
+      "source_query": "build habit tracker react local storage step by step"
+    },
+    {
+      "id": "6x6d4L_Z-Ds",
+      "title": "Build your own Habit Tracker in Vanilla JavaScript",
+      "url": "https://www.youtube.com/watch?v=6x6d4L_Z-Ds",
+      "duration_s": 3665,
+      "channel": "zachOS Tech",
+      "view_count": 5431,
+      "source_query": "build habit tracker react local storage step by step"
+    },
+    {
+      "id": "hgts_74JjVM",
+      "title": "Creating a Custom React Hook for Local Storage: Persisting State Effortlessly",
+      "url": "https://www.youtube.com/watch?v=hgts_74JjVM",
+      "duration_s": 518,
+      "channel": "React To Next",
+      "view_count": 481,
+      "source_query": "build habit tracker react local storage step by step"
+    },
+    {
+      "id": "oeQ0btgW_7c",
+      "title": "Habit Tracking App Part 3 (Vanilla JavaScript Project)",
+      "url": "https://www.youtube.com/watch?v=oeQ0btgW_7c",
+      "duration_s": 2287,
+      "channel": "Coding in Public",
+      "view_count": 1759,
+      "source_query": "build habit tracker react local storage step by step"
+    },
+    {
+      "id": "MJTIavFZkLQ",
+      "title": "Help us code a habit tracker | JavaScript, CSS, HTML",
+      "url": "https://www.youtube.com/watch?v=MJTIavFZkLQ",
+      "duration_s": 3543,
+      "channel": "Scrimba",
+      "view_count": 5391,
+      "source_query": "build habit tracker react local storage step by step"
+    },
+    {
+      "id": "zpKdI7fQ3lA",
+      "title": "Habit Tracker using React",
+      "url": "https://www.youtube.com/watch?v=zpKdI7fQ3lA",
+      "duration_s": 213,
+      "channel": "Simplified Coder",
+      "view_count": 34,
+      "source_query": "build habit tracker react local storage step by step"
+    },
+    {
+      "id": "74ThcF5JqzU",
+      "title": "Custom React Local Storage Hook",
+      "url": "https://www.youtube.com/watch?v=74ThcF5JqzU",
+      "duration_s": 671,
+      "channel": "Leigh Halliday",
+      "view_count": 5241,
+      "source_query": "react hooks useeffect localstorage project code along"
+    },
+    {
+      "id": "HnXPKtro4SM",
+      "title": "React Hooks in ONE Shot 2025 [ EASIEST Explanation ] | React JS Tutorial",
+      "url": "https://www.youtube.com/watch?v=HnXPKtro4SM",
+      "duration_s": 3569,
+      "channel": "Code Bless You",
+      "view_count": 291026,
+      "source_query": "react hooks useeffect localstorage project code along"
+    },
+    {
+      "id": "uRDujdtVfJs",
+      "title": "useEffect Hook In React / Load and Save State from LocalStorage: The 10 Days of React JS (Day 10)",
+      "url": "https://www.youtube.com/watch?v=uRDujdtVfJs",
+      "duration_s": 1223,
+      "channel": "LearnWebCode",
+      "view_count": 15441,
+      "source_query": "react hooks useeffect localstorage project code along"
+    },
+    {
+      "id": "vXu5FSdq90s",
+      "title": "UseEffect React Hook the complete guide: Fetch data + Dependency Array + convert class to function",
+      "url": "https://www.youtube.com/watch?v=vXu5FSdq90s",
+      "duration_s": 2908,
+      "channel": "Sanjeev Thiyagarajan",
+      "view_count": 5394,
+      "source_query": "react hooks useeffect localstorage project code along"
+    },
+    {
+      "id": "g_47IcYzDfA",
+      "title": "React Todo App \u2013 Full Project with Hooks & LocalStorage | Beginner Friendly",
+      "url": "https://www.youtube.com/watch?v=g_47IcYzDfA",
+      "duration_s": 3769,
+      "channel": "JDCodebase",
+      "view_count": 85,
+      "source_query": "react hooks useeffect localstorage project code along"
+    },
+    {
+      "id": "N7rs5F4f6FA",
+      "title": "Learn How to Use Local Storage in React With an Easy-to-Understand Example",
+      "url": "https://www.youtube.com/watch?v=N7rs5F4f6FA",
+      "duration_s": 537,
+      "channel": "Max Programming",
+      "view_count": 10374,
+      "source_query": "react hooks useeffect localstorage project code along"
+    },
+    {
+      "id": "RDAFJ5ToMmQ",
+      "title": "Persist State to localStorage in React (Complete Tutorial)",
+      "url": "https://www.youtube.com/watch?v=RDAFJ5ToMmQ",
+      "duration_s": 1140,
+      "channel": "Cosden Solutions",
+      "view_count": 20051,
+      "source_query": "react hooks useeffect localstorage project code along"
+    },
+    {
+      "id": "rL0CbLv2UTs",
+      "title": "lesson 11: Understanding React Hooks: useEffect",
+      "url": "https://www.youtube.com/watch?v=rL0CbLv2UTs",
+      "duration_s": 2100,
+      "channel": "Javascript For Everything",
+      "view_count": 15,
+      "source_query": "react hooks useeffect localstorage project code along"
+    },
+    {
+      "id": "_xO3BkiWdJI",
+      "title": "Build a React To-Do App with Local Storage (Hooks)",
+      "url": "https://www.youtube.com/watch?v=_xO3BkiWdJI",
+      "duration_s": 2236,
+      "channel": "Gowtham Tirri",
+      "view_count": 182,
+      "source_query": "react hooks useeffect localstorage project code along"
+    },
+    {
+      "id": "qzi-X3quu3w",
+      "title": "React 2021 Custom Hooks with LocalStorage & axios - Episode 18",
+      "url": "https://www.youtube.com/watch?v=qzi-X3quu3w",
+      "duration_s": 1571,
+      "channel": "Steve Griffith - Prof3ssorSt3v3",
+      "view_count": 2794,
+      "source_query": "react hooks useeffect localstorage project code along"
+    },
+    {
+      "id": "fTP2gi7e3k8",
+      "title": "React Persist State to LocalStorage with useEffect",
+      "url": "https://www.youtube.com/watch?v=fTP2gi7e3k8",
+      "duration_s": 250,
+      "channel": "Ben Awad",
+      "view_count": 55141,
+      "source_query": "react hooks useeffect localstorage project code along"
+    },
+    {
+      "id": "1aPm1ZcwlW8",
+      "title": "Hook useEffect in React Project. Store data in localStorage with JSON | React JS Course Episode #8",
+      "url": "https://www.youtube.com/watch?v=1aPm1ZcwlW8",
+      "duration_s": 582,
+      "channel": "DevWebApp",
+      "view_count": 52,
+      "source_query": "react hooks useeffect localstorage project code along"
+    }
+  ],
+  "recency_notes": "* **Scaffold with Vite + TypeScript:** Avoid `create-react-app` (long deprecated); use Vite with the React-TS template so the learner's backend-engineered mental model benefits from immediate type safety instead of weak JS prop validation.\n* **Introduce React 19 State Patterns:** Teach the standard `useState` for local storage interaction, but highlight React 19 additions like the `use` hook and Actions (`useActionState`) to make state transitions and form submissions cleaner.\n* **Avoid Complex State Libraries:** Skip Redux, Jotai, or MobX; local storage syncing and local UI state should be managed cleanly with custom hooks, or at most a lightweight state manager like Zustand if scale is discussed.\n* **Use Modern Styling with Tailwind CSS and Shadcn/ui:** Avoid outdated CSS-in-JS (like styled-components) or raw CSS files; modern UI setups leverage Tailwind for utility classes and Shadcn/ui components for rapid layout assembly.\n* **Leverage declarative local storage synchronization:** Structure the data flow using React's `useEffect` to safely write state to `localStorage`, showing how to safely handle Next-generation SSR hydrations (even in a SPA) by keeping browser-only APIs out of the initial render path."
+}

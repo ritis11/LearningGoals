@@ -1,0 +1,100 @@
+{
+  "A_flat_search": {
+    "latency_s": 1.06,
+    "results": 15,
+    "triage_field_coverage": {
+      "id": "15/15",
+      "title": "15/15",
+      "duration": "15/15",
+      "channel": "15/15",
+      "view_count": "15/15",
+      "url": "15/15"
+    },
+    "deep_field_coverage": {
+      "chapters": "0/15",
+      "description": "15/15",
+      "subtitles": "0/15",
+      "automatic_captions": "0/15",
+      "like_count": "0/15",
+      "channel_follower_count": "0/15",
+      "upload_date": "0/15",
+      "heatmap": "0/15",
+      "tags": "0/15"
+    }
+  },
+  "B_full_search": {
+    "latency_s": 8.49,
+    "results": 8,
+    "per_video_s": 1.06,
+    "extrapolated_60_candidates_s": 63.7,
+    "triage_field_coverage": {
+      "id": "8/8",
+      "title": "8/8",
+      "duration": "8/8",
+      "channel": "8/8",
+      "view_count": "8/8",
+      "url": "8/8"
+    },
+    "deep_field_coverage": {
+      "chapters": "4/8",
+      "description": "8/8",
+      "subtitles": "1/8",
+      "automatic_captions": "8/8",
+      "like_count": "8/8",
+      "channel_follower_count": "8/8",
+      "upload_date": "8/8",
+      "heatmap": "6/8",
+      "tags": "6/8"
+    },
+    "note": "subtitles/automatic_captions here are URL listings, not text"
+  },
+  "C_deep_fetch": {
+    "sequential_per_video_s": 1.13,
+    "sequential_total_s": 6.77,
+    "parallel_total_s": 1.55,
+    "videos_with_chapters": "2/6",
+    "extrapolated_parallel_14_finalists_s": 3.6
+  },
+  "D_subtitles": [
+    {
+      "id": "wyC25aCGdwk",
+      "source": "auto",
+      "download_s": 0.2,
+      "payload_kb": 159,
+      "events": 456,
+      "raw_text_chars": 9846,
+      "approx_tokens_raw": 2461,
+      "video_duration_min": 10
+    },
+    {
+      "id": "X92kk5iT8CM",
+      "source": "auto",
+      "download_s": 0.14,
+      "payload_kb": 253,
+      "events": 800,
+      "raw_text_chars": 14769,
+      "approx_tokens_raw": 3692,
+      "video_duration_min": 27
+    },
+    {
+      "id": "KCrXgy8qtjM",
+      "source": "auto",
+      "download_s": 0.17,
+      "payload_kb": 56,
+      "events": 154,
+      "raw_text_chars": 3544,
+      "approx_tokens_raw": 886,
+      "video_duration_min": 2
+    },
+    {
+      "id": "do62-z3z6FM",
+      "source": "auto",
+      "download_s": 0.23,
+      "payload_kb": 678,
+      "events": 1914,
+      "raw_text_chars": 42875,
+      "approx_tokens_raw": 10718,
+      "video_duration_min": 40
+    }
+  ]
+}

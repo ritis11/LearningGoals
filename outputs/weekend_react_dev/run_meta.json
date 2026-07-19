@@ -1,0 +1,70 @@
+{
+  "stage_seconds": {
+    "guard": 2.19,
+    "recency": 5.49,
+    "plan": 7.11,
+    "search": 1.31,
+    "triage": 13.99,
+    "deep_fetch": 1.45,
+    "curate": 26.56
+  },
+  "total_seconds": 58.1,
+  "llm_calls": [
+    {
+      "stage": "guard",
+      "provider": "gemini",
+      "model": "gemini-flash-latest",
+      "seconds": 2.19,
+      "input_tokens": 190,
+      "output_tokens": 248,
+      "cache_read_tokens": 0,
+      "web_searches": 0,
+      "cost_usd": 0.000677
+    },
+    {
+      "stage": "recency",
+      "provider": "gemini",
+      "model": "gemini-flash-latest",
+      "seconds": 5.48,
+      "input_tokens": 137,
+      "output_tokens": 319,
+      "cache_read_tokens": 0,
+      "web_searches": 2,
+      "cost_usd": 0.070839
+    },
+    {
+      "stage": "plan",
+      "provider": "gemini",
+      "model": "gemini-flash-latest",
+      "seconds": 7.11,
+      "input_tokens": 875,
+      "output_tokens": 1658,
+      "cache_read_tokens": 0,
+      "web_searches": 0,
+      "cost_usd": 0.004407
+    },
+    {
+      "stage": "triage",
+      "provider": "gemini",
+      "model": "gemini-flash-latest",
+      "seconds": 13.99,
+      "input_tokens": 1563,
+      "output_tokens": 4256,
+      "cache_read_tokens": 0,
+      "web_searches": 0,
+      "cost_usd": 0.011109
+    },
+    {
+      "stage": "curate",
+      "provider": "gemini",
+      "model": "gemini-flash-latest",
+      "seconds": 26.56,
+      "input_tokens": 12372,
+      "output_tokens": 4598,
+      "cache_read_tokens": 0,
+      "web_searches": 0,
+      "cost_usd": 0.015207
+    }
+  ],
+  "total_cost_usd": 0.1022
+}

@@ -1,0 +1,11 @@
+{
+  "persona_id": "senior_dev_knows_it_all",
+  "goal": "Learn React fundamentals: components, JSX, hooks and state management basics",
+  "time_budget_minutes": 300,
+  "user_context": {
+    "background": "Staff frontend engineer, 8 years of React in production, maintains a component library",
+    "known": ["React", "JSX", "React hooks", "state management", "component patterns", "TypeScript", "testing"],
+    "unknown": [],
+    "constraints": ""
+  }
+}
