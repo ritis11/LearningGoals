@@ -37,6 +37,19 @@ def main() -> None:
     p_eval.add_argument("--provider", choices=["anthropic", "gemini"],
                         default=config.DEFAULT_PROVIDER,
                         help="LLM provider (default: $CURRICULUM_PROVIDER or anthropic)")
+    p_eval.add_argument("--judge-provider", choices=["anthropic", "gemini"], default=None,
+                        help="judge with a different provider than the curator "
+                             "(mitigates shared blind spots)")
+    p_eval.add_argument("--selftest", action="store_true",
+                        help="meta-eval: seed faults into a real run and assert every "
+                             "check catches its fault (no LLM cost)")
+
+    p_stab = sub.add_parser("stability",
+                            help="run one persona N times; measure output variance")
+    p_stab.add_argument("persona", type=Path)
+    p_stab.add_argument("--runs", type=int, default=3)
+    p_stab.add_argument("--provider", choices=["anthropic", "gemini"],
+                        default=config.DEFAULT_PROVIDER)
 
     args = parser.parse_args()
 
@@ -60,10 +73,20 @@ def main() -> None:
     elif args.command == "eval":
         # imported lazily: eval/ ships alongside src/ but isn't part of the package
         sys.path.insert(0, str(config.ROOT))
+        if args.selftest:
+            from eval.selftest import run_selftest
+            sys.exit(0 if run_selftest() else 1)
         from eval.run_eval import run_eval
 
         run_eval(persona_ids=args.personas, skip_run=args.skip_run,
-                 use_judge=not args.no_judge, provider=args.provider)
+                 use_judge=not args.no_judge, provider=args.provider,
+                 judge_provider=args.judge_provider)
+
+    elif args.command == "stability":
+        sys.path.insert(0, str(config.ROOT))
+        from eval.stability import run_stability
+
+        run_stability(args.persona, runs=args.runs, provider=args.provider)
 
 
 if __name__ == "__main__":

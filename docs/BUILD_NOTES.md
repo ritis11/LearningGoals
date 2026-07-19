@@ -227,4 +227,44 @@ on purpose so niche/non-English picks that fit a constrained learner are never
 punished for not being viral. First measured numbers (reference persona artifacts):
 12/12 checks, median 128,591 views, mean like-ratio 2.3% — zero LLM cost to evaluate.
 
+### Eval hardening round: testing the tests, and unseen-persona readiness
+Re-read the assignment's eval bar ("we're evaluating how you think about evaluation";
+graders run *their own* personas) and closed the gaps in priority order:
+1. **Self-test** (`eval --selftest`): seven seeded faults, each must be caught by its
+   check — the eval now proves its own alarms ring. All 7 caught on first run.
+2. **Persona-agnostic constraints**: forbidden-pattern checking used to live only in
+   our hand-written `.expected.json` files — invisible on graders' unseen personas.
+   Now the eval reads the planner's `constraint_notes` out of each run artifact and
+   verifies them directly. The check chain became: learner free text → normalized by
+   the planner → enforced by the curator → *verified by the eval* — one contract.
+3. **Coverage consistency**: measured topic coverage (fuzzy word-overlap matching) and
+   a contradiction check on the curator's `plan_gaps` honesty; coverage % is now a
+   report column (first measurement: 100% on the reference persona, 14/14 checks).
+4. **Flagged probes** for when quota allows: `--judge-provider` (cross-family judging
+   kills the judge-shares-curator-blind-spots caveat), `curriculum stability` (variance
+   measured, not confessed), and a human-labels agreement table (verdicts recorded
+   before seeing judge scores). All mechanisms landed; numbers pending the final sweep.
+The shape of this round is the story the assignment wants: the eval got *deeper*, not
+fancier — zero new dashboards, three zero-token checks, and every prior limitation in
+§4 now has either a mitigation or a measurement.
+
+### Conclusion: final sweep, one last real catch, and the cut list
+Final full sweep (all 7 personas, gemini flash): 6/7 clean with judge 4.86–5.0 and
+100% measured coverage everywhere; self-test 7/7. The one failure was the point of the
+whole exercise: `coverage_gaps_consistent` caught the curator declaring
+"Short-Form Video Setup" a gap while a pick claimed to cover it — a contradiction the
+4.86-scoring LLM judge waved through. Deterministic checks under LLM judging, vindicated
+on the last day (EVALUATION.md §5.3).
+
+Cut for time, moved to README's more-time section: the human-label calibration pass
+(prototype removed — §5's manual spot-reads are the surviving version of the idea), and
+four product-layer items (cloud DB for saved programs, progress tracking, per-module
+quizzes, personal-vs-general feedback). Cross-provider judging shipped as a flag but
+the final sweep judged same-family (only a Gemini key had quota) — recorded in §2 as
+a limitation that stands rather than one mitigated.
+
+Final deliverable state: README (setup, 10 design decisions, prioritized more-time
+list), EVALUATION.md (checks + meta-eval + results + limits + disagreements +
+discarded signals + experiments appendix), this journal as the raw trail.
+
 <!-- append new entries below as the build progresses -->

@@ -1,10 +1,10 @@
 # Evaluation
 
 > How I decide whether the outputs are good, what I measure, results against my test
-> set, and — importantly — what my evaluation does *not* tell me.
->
-> **Status: results table pending the first full eval run** (`uv run curriculum eval`).
-> Everything else here was designed alongside the code, not after it.
+> set, and — importantly — what my evaluation does *not* tell me. Designed alongside
+> the code, not after it; §7 is the short history of every experiment and pivot that
+> shaped it. Reproduce everything with `uv run curriculum eval` (and
+> `--selftest` for the meta-eval).
 
 ## 1. What "good" means here
 
@@ -36,7 +36,28 @@ rot within weeks and punish correct behavior.
 | reasons share content n-grams with the video's chapters/transcript | cheap fabrication detector (proxy — see §4) |
 | refusal present/absent as expected | safety guard works and doesn't overfire |
 | engagement floor: no pick <1k views or <0.5% like-ratio | catches abandoned/disliked content; the summary also reports median views + mean like-ratio per curriculum (§6 for why it's a floor, not a ranker) |
+| plan constraints honored (patterns from the run's own `constraint_notes`) | **persona-agnostic**: works on unseen personas with no expectations file — the planner normalizes free-text constraints into the artifact, and the eval verifies against that |
+| coverage vs gap claims consistent (+ measured coverage %) | catches the curator declaring a "gap" it actually covered; coverage % reported per curriculum |
 | dropped-list non-empty; expertise claim non-empty | the reasoning trace is real, not decorative |
+
+### Meta-evaluation: the checks are themselves tested
+`curriculum eval --selftest` seeds seven deliberate faults into a copy of a real run —
+hallucinated pick, blown budget, duplicate, fabricated reason, constraint violation,
+gap contradiction, sub-floor engagement — and asserts each targeted check **fails**.
+This proves the alarms ring and guards against check-rot as the schema evolves. Zero
+LLM cost; runs in CI-time seconds.
+
+### Variance & bias probes (opt-in, small LLM cost)
+- `curriculum stability <persona> --runs N`: same persona N times on warm caches (only
+  the LLM varies) → mean pick-set Jaccard, watch-minutes spread, worst check pass-rate.
+  Puts a *number* on the §4 "one-run variance" limit.
+- `curriculum eval --judge-provider <other>`: judge with a different model family than
+  the curator, mitigating the §4 shared-blind-spots limit. (Mechanism in place; the
+  final sweep judged same-family — only a Gemini key had quota — so that limit stands
+  as documented rather than mitigated.)
+- A systematic human-labeling pass (verdicts recorded before seeing judge scores, with
+  an agreement table) was prototyped but cut for time — see README "what I'd do with
+  more time". §5 above is the manual version of the same idea.
 
 ### Judge dimensions (1–5 each)
 `relevance_to_goal`, `level_fit` (nothing re-teaching knowns / assuming unknowns),
@@ -51,26 +72,26 @@ eval summary table includes both per persona.
 
 ## 3. Results
 
-First full sweep (2026-07-18, provider: gemini flash; `eval/results/20260718-131127`):
+Final full sweep (2026-07-19, provider: gemini flash, chapters-first content;
+`eval/results/20260719-075900`). The fault-injection self-test also passed the same
+day: **7/7 seeded faults caught**.
 
-| persona | checks | judge avg | cost $ | latency s | notes |
-|---|---|---|---|---|---|
-| explosives_blocked | 2/2 | n/a (refusal) | 0.0005 | 1.8 | refused correctly |
-| french_cooking_novice | 10/10 | 4.86 | 0.031 | 138 | all checks pass |
-| hindi_language_learner | 10/10 | 5.0 | 0.035 | 47 | Hindi-language picks verified |
-| senior_dev_knows_it_all | 10/10 | 4.86 | 0.030 | 98 | `goal_already_met` flagged; pivoted to advanced content |
-| weekend_react_dev | 11/11 | pending¹ | 0.032 | 133 | all checks pass (checks-only rerun `20260718-132148`) |
-| sixty_minute_crunch | pending¹ | pending¹ | — | — | blocked: Gemini free-tier daily quota |
-| travel_blogger_expert_track | pending¹ | pending¹ | — | — | blocked: Gemini free-tier daily quota |
+| persona | checks | judge avg | coverage | median views | mean like% | cost $ | latency s | notes |
+|---|---|---|---|---|---|---|---|---|
+| explosives_blocked | 2/2 | n/a (refusal) | — | — | — | 0.0007 | 1.8 | refused correctly |
+| french_cooking_novice | 13/13 | 5.0 | 100% | 539,248 | 2.0% | 0.033 | 55 | all checks pass |
+| hindi_language_learner | 13/13 | 5.0 | 100% | 1,538,858 | 2.6% | 0.032 | 46 | Hindi-language picks verified |
+| senior_dev_knows_it_all | 13/13 | 5.0 | 100% | 28,491 | 3.9% | 0.135 | 60 | `goal_already_met` flagged; pivoted to advanced |
+| sixty_minute_crunch | 13/13 | 5.0 | 100% | 265,048 | 3.0% | 0.096 | 44 | tight 60-min budget respected |
+| travel_blogger_expert_track | 12/13 | 4.86 | 100% | 122,418 | 3.5% | 0.103 | 53 | **FAILED coverage_gaps_consistent — see §5** |
+| weekend_react_dev | 14/14 | 5.0 | 100% | 38,245 | 4.1% | 0.102 | 58 | reference persona; matches the assignment's output sketch |
 
-¹ The sweep exhausted the Gemini free tier's daily request cap (limit 20/day) after
-four personas; remaining rows to be filled after quota reset or on the paid tier.
-The failures were quota 429s, not pipeline defects — the same personas' pipelines are
-exercised by the deterministic-check suite where artifacts exist.
-
-Cost/latency (gemini flash): ~$0.03 and ~1–2.5 min per curriculum cold;
-the same reference persona on Anthropic (Haiku 4.5 + Sonnet 5) cost $0.32 — a 10×
-spread for outputs that pass the same checks (see §5 for quality-difference caveats).
+Cost/latency: **~$0.03–0.14 and 45–60s per curriculum** on gemini flash with warm
+YouTube caches (~1–2.5 min cold). The same reference persona on Anthropic
+(Haiku 4.5 + Sonnet 5) cost $0.32 — a ~5–10× spread for outputs that pass the same
+checks. An earlier sweep (2026-07-18, `eval/results/20260718-131127`) was cut short at
+4/7 personas by the Gemini free tier's daily request cap — itself a finding that drove
+the retry/backoff and caching hardening.
 
 ## 4. What this evaluation does NOT tell me
 
@@ -119,6 +140,14 @@ spread for outputs that pass the same checks (see §5 for quality-difference cav
    "eval can't see what search/fetch never surfaced" limit showing up in practice:
    near-perfect judge scores are conditional on bundle completeness, so
    `transcript_coverage` must be read alongside the scores.
+3. **The judge gave 4.86 to a curriculum the deterministic suite failed.** In the
+   final sweep, `travel_blogger_expert_track` scored near-perfect with the judge while
+   `coverage_gaps_consistent` caught a real contradiction: a pick claimed to cover
+   "Short-Form Video (TikTok/Shorts) Setup" while the curator *also* declared it a
+   plan gap. The judge — which reads the same artifact — missed the inconsistency; a
+   5-line deterministic check caught it. This is the clearest argument in this
+   document for layering cheap exact checks under LLM judging rather than trusting
+   either alone.
 
 ## 6. Signals considered and discarded
 
@@ -144,3 +173,42 @@ spread for outputs that pass the same checks (see §5 for quality-difference cav
 - **Attaching web search to the structured planning call.** Server tools can pause
   turns mid-call; a separate conditional recency step is simpler and gated to
   fast-moving topics only.
+
+## 7. Appendix: experiments & pivots (the short version)
+
+The full day-by-day journal is `docs/BUILD_NOTES.md`; these are the moments that
+changed the design. Every one is reproducible from files in `experiments/`.
+
+1. **Fetch strategy was benchmarked before it was built.** Question: one
+   full-metadata search vs flat-search + deep-fetch-finalists. Measured
+   (`experiments/benchmark_youtube_fetch.py`): full search does per-video work
+   serially (~64s for a 60-candidate pool); the two-stage design does the same job in
+   ~5–8s. Also learned: transcripts are a *separate* rate-limited download, and raw
+   transcripts run 0.9k–10.7k tokens/video → per-video compression budgets.
+2. **The expertise claim moved to where the evidence is.** First design asked the
+   planner to declare "the level you'll reach" before any search — ungroundable.
+   Pivot: planner emits a labeled *estimate*; the curator, holding the picked videos'
+   actual content, issues the grounded verdict; shortfalls are reported.
+3. **YouTube's caption endpoint forced the chapters-first pivot.** Live runs hit
+   IP-level caption blocks (429s across all clients and libraries, all day).
+   Transcript-first fetching stalled runs; chapter/description grounding passed every
+   check and judge dimension anyway. Pivot: transcripts became opt-in
+   (`--transcripts`); reliability machinery (pacing, breaker, permanent cache,
+   signed-URL refresh) retained for when they're on.
+4. **Reasoning spend silently truncated outputs — twice.** Thinking tokens share the
+   output budget; curricula were cut mid-JSON at 8k and again at 16k tokens. Fixes:
+   bounded reasoning effort on generation-heavy calls, a self-healing parse ladder,
+   and per-stage token/cost instrumentation (which also exposed a 223s → 21s win in
+   the web-search enrichment step).
+5. **Engagement was discarded as a ranker, then adopted as a floor.** Popularity ≠
+   fit (the assignment's own framing), but near-zero views / sub-0.5% like-ratio is a
+   real negative signal. It now appears exactly twice: prompt guidance
+   (floor + tiebreak, never ranking) and the deterministic `engagement_floor` check.
+6. **A second provider was added mid-build** (Gemini flash via raw REST) when quota
+   caps threatened iteration — and turned "model comparison" into a measured result:
+   ~$0.03 vs ~$0.32 per curriculum passing identical checks. The free tier's 20
+   requests/day cap then killed an eval sweep, which drove retry/backoff hardening.
+7. **The eval learned to test itself.** Final round: seeded-fault self-test (7/7
+   caught), persona-agnostic constraint checks (works on graders' unseen personas),
+   and coverage-vs-gaps consistency — which promptly caught a real curator
+   contradiction the 4.86-scoring LLM judge had waved through (§5.3).

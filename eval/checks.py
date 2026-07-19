@@ -35,6 +35,49 @@ def _content_ngrams(bundle: dict) -> set[str]:
     return {w for w in re.findall(r"[a-z][a-z0-9'-]{3,}", text) if w not in STOPWORDS}
 
 
+def _norm_words(s: str) -> set[str]:
+    return {w for w in re.findall(r"[a-z0-9]+", s.lower())
+            if w not in STOPWORDS and len(w) > 2}
+
+
+def _topic_covered(topic: str, covers: list[str]) -> bool:
+    """Fuzzy match: a plan topic counts as covered when a pick's covers_topics entry
+    shares at least half its meaningful words (or one contains the other)."""
+    tw = _norm_words(topic)
+    if not tw:
+        return False
+    for c in covers:
+        cw = _norm_words(c)
+        if cw and (tw <= cw or cw <= tw or len(tw & cw) >= max(1, len(tw) // 2)):
+            return True
+    return False
+
+
+def coverage_stats(run_dir: Path) -> dict:
+    """Measured topic coverage: what fraction of the plan's topics do the picks claim,
+    and does the curator's plan_gaps agree with the measurement? No network, no LLM."""
+    curriculum_path = run_dir / "curriculum.json"
+    if not curriculum_path.exists():
+        return {}
+    data = json.loads(curriculum_path.read_text())
+    topics = [t["name"] for t in data["topic_plan"]["topics"]]
+    claimed = [c for p in data["curriculum"]["picks"] for c in p["covers_topics"]]
+    gaps = data["curriculum"]["plan_gaps"]
+    covered = [t for t in topics if _topic_covered(t, claimed)]
+    return {
+        "covered": len(covered),
+        "total": len(topics),
+        "coverage_pct": round(len(covered) / len(topics), 2) if topics else None,
+        # curator contradiction: a topic declared a gap yet claimed by a pick
+        "gap_contradictions": [g for g in gaps if _topic_covered(g, claimed)],
+        # soft signal only (fuzzy matching makes this direction noisy)
+        "unacknowledged_uncovered": [
+            t for t in topics
+            if not _topic_covered(t, claimed) and not _topic_covered(t, gaps)
+        ],
+    }
+
+
 def engagement_stats(run_dir: Path) -> dict:
     """Per-pick engagement from cached video metadata (no network, no LLM).
     Returns {picks: [{title, views, like_ratio}], median_views, mean_like_ratio}."""
@@ -108,6 +151,38 @@ def run_checks(run_dir: Path, expected: dict, persona: dict) -> list[dict]:
     for pattern in expected.get("forbidden_title_patterns", []):
         offenders = [p["title"] for p in picks if re.search(pattern, p["title"], re.I)]
         checks.append(_check(f"forbidden_pattern:{pattern}", not offenders, str(offenders)))
+
+    # --- constraints (persona-agnostic: from the plan's own constraint_notes) ---------
+    # Works on ANY persona (incl. graders' unseen ones): the planner normalizes the
+    # learner's free-text constraints into constraint_notes inside the run artifact;
+    # exclude-title patterns are extracted from the quoted part of each instruction.
+    plan_patterns = []
+    for note in data["topic_plan"].get("constraint_notes", []):
+        if note.get("kind") == "exclude_title_pattern":
+            quoted = [q for pair in re.findall(r"'([^']+)'|\"([^\"]+)\"",
+                                               note.get("instruction", ""))
+                      for q in pair if q]
+            plan_patterns.extend(quoted)
+    offenders = [p["title"] for p in picks
+                 for pat in plan_patterns if pat.lower() in p["title"].lower()]
+    checks.append(_check(
+        "plan_constraints_honored",
+        not offenders,
+        f"violations: {offenders}" if offenders
+        else f"{len(plan_patterns)} exclude-pattern(s) from the plan's constraint_notes checked",
+    ))
+
+    # --- topic coverage vs the curator's own gap claims --------------------------------
+    cov = coverage_stats(run_dir)
+    checks.append(_check(
+        "coverage_gaps_consistent",
+        not cov.get("gap_contradictions"),
+        (f"declared a gap but covered by picks: {cov['gap_contradictions']} | "
+         if cov.get("gap_contradictions") else "")
+        + f"coverage {cov.get('covered')}/{cov.get('total')} topics"
+        + (f"; uncovered without gap note (soft): {cov['unacknowledged_uncovered']}"
+           if cov.get("unacknowledged_uncovered") else ""),
+    ))
 
     terms = expected.get("required_topic_terms", [])
     if terms:

@@ -9,7 +9,7 @@ from curriculum_agent import config, pipeline
 from curriculum_agent.llm import make_llm
 from curriculum_agent.schemas import Persona
 
-from eval.checks import engagement_stats, run_checks
+from eval.checks import coverage_stats, engagement_stats, run_checks
 from eval.judge import judge_run
 
 JUDGE_DIMS = [
@@ -33,11 +33,15 @@ def _load_test_set(persona_ids: list[str] | None) -> list[tuple[Persona, dict]]:
 
 
 def run_eval(persona_ids: list[str] | None = None, skip_run: bool = False,
-             use_judge: bool = True, provider: str = config.DEFAULT_PROVIDER) -> Path:
+             use_judge: bool = True, provider: str = config.DEFAULT_PROVIDER,
+             judge_provider: str | None = None) -> Path:
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
     out_dir = config.EVAL_RESULTS_DIR / stamp
     out_dir.mkdir(parents=True, exist_ok=True)
-    judge_llm = make_llm(provider) if use_judge else None
+    # cross-provider judging (judge != curator) mitigates shared blind spots — §4
+    judge_llm = make_llm(judge_provider or provider) if use_judge else None
+    if use_judge and judge_provider and judge_provider != provider:
+        print(f"cross-provider judging: curator={provider}, judge={judge_provider}")
 
     rows = []
     for persona, expected in _load_test_set(persona_ids):
@@ -66,6 +70,7 @@ def run_eval(persona_ids: list[str] | None = None, skip_run: bool = False,
             result["checks_passed"] = sum(c["pass"] for c in checks)
             result["checks_total"] = len(checks)
             result["engagement"] = engagement_stats(run_dir)
+            result["coverage"] = coverage_stats(run_dir)
             for c in checks:
                 mark = "PASS" if c["pass"] else "FAIL"
                 print(f"  [{mark}] {c['name']}" + (f" — {c['detail']}" if c["detail"] and not c["pass"] else ""))
@@ -90,20 +95,22 @@ def _summary_md(rows: list[dict], stamp: str) -> str:
     lines = [
         f"# Eval run {stamp}",
         "",
-        "| persona | checks | judge avg | median views | mean like% | cost $ | latency s | notes |",
-        "|---|---|---|---|---|---|---|---|",
+        "| persona | checks | judge avg | coverage | median views | mean like% | cost $ | latency s | notes |",
+        "|---|---|---|---|---|---|---|---|---|",
     ]
     for r in rows:
         if "run_error" in r:
-            lines.append(f"| {r['persona']} | — | — | — | — | — | — | PIPELINE ERROR: {r['run_error'][:80]} |")
+            lines.append(f"| {r['persona']} | — | — | — | — | — | — | — | PIPELINE ERROR: {r['run_error'][:80]} |")
             continue
         failed = [c["name"] for c in r.get("checks", []) if not c["pass"]]
         eng = r.get("engagement") or {}
+        cov = (r.get("coverage") or {}).get("coverage_pct")
         views = eng.get("median_views")
         ratio = eng.get("mean_like_ratio")
         lines.append(
             f"| {r['persona']} | {r.get('checks_passed')}/{r.get('checks_total')} "
             f"| {r.get('judge_avg', '—')} "
+            f"| {f'{cov:.0%}' if cov is not None else '—'} "
             f"| {f'{views:,}' if views else '—'} | {f'{ratio:.1%}' if ratio else '—'} "
             f"| {r.get('cost_usd', '—')} "
             f"| {r.get('run_seconds', '—')} | {('FAILED: ' + ', '.join(failed)) if failed else 'all checks pass'} |"

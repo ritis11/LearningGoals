@@ -41,8 +41,11 @@ Artifacts land in `outputs/<persona_id>/`:
 Run the evaluation harness (the most important deliverable — see `EVALUATION.md`):
 
 ```bash
-uv run curriculum eval              # full: pipeline + checks + LLM judge over test_set/
-uv run curriculum eval --no-judge   # deterministic checks only (no LLM cost)
+uv run curriculum eval                       # full: pipeline + checks + LLM judge over test_set/
+uv run curriculum eval --no-judge            # deterministic checks only (no LLM cost)
+uv run curriculum eval --selftest            # meta-eval: prove the checks catch seeded faults
+uv run curriculum eval --judge-provider gemini   # judge with a different family than the curator
+uv run curriculum stability test_set/weekend_react_dev.json --runs 3   # output-variance probe
 ```
 
 No YouTube API key is needed — video data comes via yt-dlp. First runs are network-heavy;
@@ -123,8 +126,9 @@ was caught.
 
 **Provider-agnostic LLM layer.** One small interface, two backends: Anthropic (tiered —
 cheap model for guard/triage, strong model for plan/curate/judge) and Gemini flash (raw
-REST, no extra SDK). Motivations: the assignment key has a usage cap, a second provider
-turns "model comparison" into a measured cross-provider result ($0.32 vs $0.03 per
+REST, no extra SDK). 
+Motivations: the assignment key has a usage cap, and anthropic keys provided were not accessible to me, hence I used a second provider, while also adding option for the testers to use anthropic tiered models.
+This turns "model comparison" into a measured cross-provider result ($0.32 vs $0.03 per
 curriculum, same checks passing), and the abstraction keeps every pipeline stage
 provider-blind.
 
@@ -157,7 +161,7 @@ papered over.
 ## What I'd do with more time
 
 The full prioritized plan is `plans/02-enhancements-plan.md`. First three, and why in
-this order:
+this order: 
 
 1. **Comparison harness** (content depth × model × prompt matrix over the test set).
    First because it multiplies the value of everything after it: it turns claims like
@@ -172,6 +176,33 @@ this order:
    persisted run trace, so "why didn't you include video X?" gets an answer grounded
    in recorded drop reasons rather than a retcon. Third because the trace it needs is
    already persisted by the MVP; it's high user value at low marginal cost.
+
+### Evaluation depth
+
+4. **Human-label calibration of the judge.** Prototyped and cut for time: record my
+   own acceptable/not verdicts per curriculum *before* seeing judge scores, then
+   report a judge-vs-human agreement table with every disagreement feeding
+   EVALUATION.md §5. The manual version of this already produced the document's best
+   findings (the coverage-contradiction the judge missed); systematizing it is the
+   next real step for trusting — or correcting — the LLM judge.
+
+### Product experience (turning the engine into a learning platform)
+
+5. **Cloud DB layer for saved programs.** Persist each user's query and curated
+   program (runs are already self-contained JSON artifacts, so this is a storage
+   layer, not a redesign) — returning users see and resume their previous curricula
+   instead of regenerating them.
+6. **Progress tracking.** A per-pick completion state and a progress bar over the
+   curriculum (watch-minutes completed vs planned), so the time-budget promise
+   becomes something the user can see themselves keeping.
+7. **End-of-module quizzes.** A short quiz after each video, generated from that
+   video's chapters/transcript, helping users verify their level before moving to the
+   next pick — and giving the expertise-trajectory claim a feedback signal.
+8. **Two-track user feedback.** *Personal* feedback stores individual preferences
+   (e.g. "less theory, faster pace") and conditions that user's future curations;
+   *general* feedback aggregates across users to improve the product itself — prompt
+   tuning, triage weights, and eval thresholds driven by real usage instead of my
+   judgment alone.
 
 Beyond those: community-sourced discovery (Reddit — popularity ranks what's popular,
 communities rank what people actually learned from), SponsorBlock-aware time budgets,
