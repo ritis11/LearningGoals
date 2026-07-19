@@ -1,0 +1,231 @@
+{
+  "persona": {
+    "persona_id": "weekend_react_dev",
+    "goal": "Build a small React app this weekend, something like a habit tracker with local storage",
+    "time_budget_minutes": 60,
+    "user_context": {
+      "background": "Python backend engineer, 5 years experience",
+      "known": [
+        "JavaScript fundamentals",
+        "HTTP, REST, JSON",
+        "Git, npm"
+      ],
+      "unknown": [
+        "React",
+        "JSX",
+        "Vite tooling",
+        "React hooks",
+        "Component patterns"
+      ],
+      "constraints": "I prefer project-based content. Avoid pure-theory lectures and 'in 100 seconds' surface intros."
+    }
+  },
+  "topic_plan": {
+    "expertise_start": "Experienced backend engineer, React beginner",
+    "expertise_start_why": "Has 5 years of Python backend experience and knows general JS/npm fundamentals, but has no experience with React components, JSX, hooks, or modern SPA build systems like Vite.",
+    "expertise_target_provisional": "Can scaffold, build, and style a standard single-page React app with TypeScript, managing local state and persisting data via localStorage.",
+    "goal_already_met": false,
+    "goal_already_met_note": "",
+    "topics": [
+      {
+        "name": "Scaffolding with Vite, TypeScript, and Tailwind CSS",
+        "why": "Learner needs a modern, fast development setup. Since they are a backend engineer with NPM experience, scaffolding with Vite + TS is more structured and robust than standard JS.",
+        "est_minutes": 10,
+        "order": 1
+      },
+      {
+        "name": "React Components, JSX, and Prop Types",
+        "why": "Crucial paradigm shift for a backend developer. Need to understand how declarative rendering and JSX structure UI elements dynamically.",
+        "est_minutes": 12,
+        "order": 2
+      },
+      {
+        "name": "State Management with useState and Syncing to LocalStorage",
+        "why": "Essential for the habit tracker's core logic. Must learn how to declare local state and write declarative synchronizations to localStorage safely using useEffect.",
+        "est_minutes": 15,
+        "order": 3
+      },
+      {
+        "name": "Building the Habit Tracker (Hands-on Project)",
+        "why": "Synthesizes the components, styling, state, and persistence into the requested weekend project.",
+        "est_minutes": 17,
+        "order": 4
+      }
+    ],
+    "constraint_notes": [
+      {
+        "source_text": "I prefer project-based content.",
+        "kind": "prefer_format",
+        "instruction": "Prioritize code-along tutorials, project builds, and step-by-step implementations over abstract concept guides."
+      },
+      {
+        "source_text": "Avoid pure-theory lectures and 'in 100 seconds' surface intros.",
+        "kind": "exclude_title_pattern",
+        "instruction": "Exclude videos with '100 seconds', 'quick crash course', or similar surface-level/micro-learning patterns in their titles or descriptions."
+      }
+    ],
+    "search_queries": [
+      "react vite typescript tailwind habit tracker tutorial",
+      "build habit tracker react local storage step by step",
+      "react hooks useeffect localstorage project code along"
+    ]
+  },
+  "curriculum": {
+    "picks": [
+      {
+        "video_id": "9aTRnV6g0eQ",
+        "order": 1,
+        "title": "Learn React With This One Project",
+        "url": "https://www.youtube.com/watch?v=9aTRnV6g0eQ",
+        "watch": {
+          "mode": "segments",
+          "segments": [
+            {
+              "start_s": 62,
+              "end_s": 264,
+              "chapter_title": "Setup React"
+            },
+            {
+              "start_s": 387,
+              "end_s": 1160,
+              "chapter_title": "Thinking in Components / Props"
+            },
+            {
+              "start_s": 2875,
+              "end_s": 4230,
+              "chapter_title": "useState Hook"
+            },
+            {
+              "start_s": 5838,
+              "end_s": 6315,
+              "chapter_title": "useEffect Hook"
+            }
+          ],
+          "minutes": 47
+        },
+        "reason": "This code-along is the ultimate resource for your exact goal: building a React Habit Tracker. The 'Setup React' chapter guides you through Vite scaffolding. The component and prop segments walk you through creating standard UI building blocks, while the 'useState Hook' and 'useEffect Hook' segments show you exactly how to manage and trigger side-effects in a reactive UI.",
+        "covers_topics": [
+          "Scaffolding with Vite, TypeScript, and Tailwind CSS",
+          "React Components, JSX, and Prop Types",
+          "State Management with useState and Syncing to LocalStorage",
+          "Building the Habit Tracker (Hands-on Project)"
+        ],
+        "confidence": "high",
+        "confidence_why": "Web Dev Simplified explicitly uses a habit tracker project to teach these fundamental concepts, which directly aligns with your weekend goal. The chapters are highly detailed."
+      },
+      {
+        "video_id": "RDAFJ5ToMmQ",
+        "order": 2,
+        "title": "Persist State to localStorage in React (Complete Tutorial)",
+        "url": "https://www.youtube.com/watch?v=RDAFJ5ToMmQ",
+        "watch": {
+          "mode": "segments",
+          "segments": [
+            {
+              "start_s": 539,
+              "end_s": 781,
+              "chapter_title": "Persisting state"
+            },
+            {
+              "start_s": 781,
+              "end_s": 1089,
+              "chapter_title": "usePersistedState custom hook"
+            }
+          ],
+          "minutes": 9
+        },
+        "reason": "Teaches you how to cleanly encapsulate the localStorage state persistence logic into a clean custom hook (`usePersistedState`). This structure will appeal to a backend engineer's appreciation for clean architecture and reusable utility functions.",
+        "covers_topics": [
+          "State Management with useState and Syncing to LocalStorage"
+        ],
+        "confidence": "high",
+        "confidence_why": "The video chapters explicitly target 'Persisting state' and building a custom 'usePersistedState' hook, matching the backend-aligned styling of reusable utility hooks."
+      }
+    ],
+    "dropped": [
+      {
+        "video_id": "X92kk5iT8CM",
+        "title": "Build a Complete To-Do List App with React + Vite | Dashboard, Reminders & Local Storage Tutorial",
+        "url": "https://www.youtube.com/watch?v=X92kk5iT8CM",
+        "reason": "overlaps with Learn React With This One Project (9aTRnV6g0eQ) because both teach basic setup, useState, and syncing state, but 9aTRnV6g0eQ focuses on the exact requested Habit Tracker project instead of a generic To-Do List."
+      },
+      {
+        "video_id": "_xO3BkiWdJI",
+        "title": "Build a React To-Do App with Local Storage (Hooks)",
+        "url": "https://www.youtube.com/watch?v=_xO3BkiWdJI",
+        "reason": "overlaps with Learn React With This One Project (9aTRnV6g0eQ) because both cover creating functional stateful items and saving them to local storage, but 9aTRnV6g0eQ provides a higher-quality habit tracker scenario instead of a standard To-Do list."
+      },
+      {
+        "video_id": "uRDujdtVfJs",
+        "title": "useEffect Hook In React / Load and Save State from LocalStorage: The 10 Days of React JS (Day 10)",
+        "url": "https://www.youtube.com/watch?v=uRDujdtVfJs",
+        "reason": "Dropped due to outdated styling and overlap with RDAFJ5ToMmQ for modern custom hooks state synchronization."
+      },
+      {
+        "video_id": "74ThcF5JqzU",
+        "title": "Custom React Local Storage Hook",
+        "url": "https://www.youtube.com/watch?v=74ThcF5JqzU",
+        "reason": "overlaps with Persist State to localStorage in React (RDAFJ5ToMmQ) because both implement a custom hook for localStorage, but RDAFJ5ToMmQ is newer, clearer, and features more robust utils."
+      },
+      {
+        "video_id": "fTP2gi7e3k8",
+        "title": "React Persist State to LocalStorage with useEffect",
+        "url": "https://www.youtube.com/watch?v=fTP2gi7e3k8",
+        "reason": "Dropped because it is too brief and lacks the modular structure of creating a dedicated custom hook taught in RDAFJ5ToMmQ."
+      },
+      {
+        "video_id": "g_47IcYzDfA",
+        "title": "React Todo App \u2013 Full Project with Hooks & LocalStorage | Beginner Friendly",
+        "url": "https://www.youtube.com/watch?v=g_47IcYzDfA",
+        "reason": "overlaps with Learn React With This One Project (9aTRnV6g0eQ) which covers the exact same fundamental concepts with structured chapters and a habit-focused repo."
+      },
+      {
+        "video_id": "N7rs5F4f6FA",
+        "title": "Learn How to Use Local Storage in React With an Easy-to-Understand Example",
+        "url": "https://www.youtube.com/watch?v=N7rs5F4f6FA",
+        "reason": "overlaps with Persist State to localStorage in React (RDAFJ5ToMmQ) because both show proper state initialization from localStorage, but RDAFJ5ToMmQ's custom hook method is cleaner."
+      },
+      {
+        "video_id": "b0IZo2Aho9Y",
+        "title": "10 React Antipatterns to Avoid - Code This, Not That!",
+        "url": "https://www.youtube.com/watch?v=b0IZo2Aho9Y",
+        "reason": "Out of scope for a developer building their first app. Best watched after the first prototype is successfully completed."
+      },
+      {
+        "video_id": "hgts_74JjVM",
+        "title": "Creating a Custom React Hook for Local Storage: Persisting State Effortlessly",
+        "url": "https://www.youtube.com/watch?v=hgts_74JjVM",
+        "reason": "overlaps with Persist State to localStorage in React (RDAFJ5ToMmQ) because both write custom useLocalStorage hooks, but RDAFJ5ToMmQ has clear chapter navigation."
+      },
+      {
+        "video_id": "HnXPKtro4SM",
+        "title": "React Hooks in ONE Shot 2025 [ EASIEST Explanation ] | React JS Tutorial",
+        "url": "https://www.youtube.com/watch?v=HnXPKtro4SM",
+        "reason": "Pure theory overview which conflicts with the learner's strong preference for project-based code-alongs."
+      },
+      {
+        "video_id": "qzi-X3quu3w",
+        "title": "React 2021 Custom Hooks with LocalStorage & axios - Episode 18",
+        "url": "https://www.youtube.com/watch?v=qzi-X3quu3w",
+        "reason": "Out of scope due to its focus on third-party integrations like Axios and Star Wars API endpoints rather than local storage logic."
+      },
+      {
+        "video_id": "088ty7TYxCE",
+        "title": "React Search Filter with Tailwind CSS! [EASY] (Step By Step)",
+        "url": "https://www.youtube.com/watch?v=088ty7TYxCE",
+        "reason": "Focuses primarily on search bars and dynamic table filtering with external REST APIs rather than localStorage habit tracking."
+      }
+    ],
+    "budget": {
+      "total_minutes": 56,
+      "budget_minutes": 60,
+      "headroom_note": "You have 4 minutes remaining. This provides a tight, high-impact curriculum designed to fit within your weekend timeframe."
+    },
+    "plan_gaps": [],
+    "expertise_achieved": {
+      "level": "Provisional Target Met",
+      "justification": "By following the curated segments, you will successfully scaffold a new React app with Vite, build responsive UI components with JSX and Tailwind CSS, manage the tracker's dynamic states using standard hooks, and implement a robust custom hook to persist progress cleanly inside localStorage."
+    },
+    "summary": "This highly focused, project-based curriculum is designed specifically for your weekend goal of building a React Habit Tracker. By targeting specific chapters of a masterclass habit-tracker build and pairing it with a professional custom storage hook tutorial, you will quickly cross the bridge from backend development to functional front-end engineering."
+  }
+}

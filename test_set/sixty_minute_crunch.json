@@ -1,0 +1,11 @@
+{
+  "persona_id": "sixty_minute_crunch",
+  "goal": "Understand what Docker is and containerize one existing Node.js API",
+  "time_budget_minutes": 60,
+  "user_context": {
+    "background": "Node.js developer, 3 years, has never used Docker",
+    "known": ["Node.js", "npm", "REST APIs", "Linux command line basics"],
+    "unknown": ["Docker", "Dockerfile", "containers vs VMs"],
+    "constraints": "No multi-hour courses; I need the fastest practical path."
+  }
+}

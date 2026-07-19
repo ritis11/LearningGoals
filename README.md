@@ -1,2 +1,221 @@
-# LearningGoals
-Agentic Platform to curate custom learning curriculum taking user's requirements
+# Learning Curriculum Builder
+
+An AI agent that takes a learning goal, a time budget, and a learner's context (what
+they know, what they don't, their constraints) and produces a YouTube curriculum the
+learner can follow to reach the goal within the budget — with content-grounded reasons
+for every pick, a considered-but-dropped trace, and an honest assessment of the level
+they'll actually reach.
+
+Built for the RapidCanvas AI Engineer take-home (`rc_curriculum_assignment.pdf`).
+
+## Setup & run (one command after setup)
+
+```bash
+# 1. install deps (needs uv: https://docs.astral.sh/uv/)
+uv sync
+
+# 2. API key (provided with the assignment)
+cp .env.example .env   # then paste the key into .env
+
+# 3a. web UI (recommended) — form in, curriculum out
+uv run curriculum serve            # → http://localhost:8000
+
+# 3b. or the CLI with a persona JSON
+uv run curriculum run test_set/weekend_react_dev.json
+```
+
+The web UI is a single static page over a small FastAPI service: fill in the goal /
+background / budget, optionally click **Suggest concepts** (one cheap LLM call proposes
+known/unknown lists you can edit), submit, and watch live stage progress until the
+curriculum renders — picks with watch segments and reasons, the considered-but-dropped
+table, and the expertise trajectory. The API is usable directly too:
+`POST /api/curriculum` (persona fields) → `{run_id}`, then poll `GET /api/runs/{run_id}`.
+
+Artifacts land in `outputs/<persona_id>/`:
+- `curriculum.md` — the human-readable plan (picks in order, watch segments, reasons,
+  confidence, dropped candidates, expertise trajectory, honest gaps)
+- `curriculum.json` — the same, machine-readable, with the full topic plan
+- `candidates.json` — the complete search/triage trace (what was considered and why it lost)
+- `run_meta.json` — per-stage latency, per-call token usage, computed cost
+
+Run the evaluation harness (the most important deliverable — see `EVALUATION.md`):
+
+```bash
+uv run curriculum eval                       # full: pipeline + checks + LLM judge over test_set/
+uv run curriculum eval --no-judge            # deterministic checks only (no LLM cost)
+uv run curriculum eval --selftest            # meta-eval: prove the checks catch seeded faults
+uv run curriculum eval --judge-provider gemini   # judge with a different family than the curator
+uv run curriculum stability test_set/weekend_react_dev.json --runs 3   # output-variance probe
+```
+
+No YouTube API key is needed — video data comes via yt-dlp. First runs are network-heavy;
+reruns hit the disk cache in `.cache/` and cost seconds.
+
+By default the content evidence per finalist is **chapters + description + stats**;
+`--transcripts` additionally downloads subtitle text (YouTube rate-limits that endpoint
+aggressively, so it's opt-in — already-cached transcripts are always used).
+
+**Measured cost & latency** (reference persona, cold caches): ~1–2.5 min per curriculum;
+**$0.03 on Gemini flash vs $0.32 on Claude (Haiku 4.5 + Sonnet 5)** for outputs that pass
+the same checks. Per-stage numbers land in every run's `run_meta.json`.
+
+The engine runs on either provider — `--provider anthropic|gemini` (or set
+`CURRICULUM_PROVIDER` in `.env`); the default is Anthropic with the assignment key.
+
+## How it works
+
+```
+persona.json → validate → guard (fast model: harmful-goal check + recency gate)
+  → plan (smart model: expertise profiling, topic plan, constraint normalization,
+          queries; conditional live web search for fast-moving topics)
+  → search (yt-dlp flat, 3-5 queries in parallel, ~40-60 candidates)
+  → triage (hard filters in code, then fast model scores metadata → ~14 finalists)
+  → deep fetch (parallel: chapters, stats, subtitles compressed to a token budget)
+  → curate (smart model: ordered picks, segment-level watch instructions,
+            content-cited reasons, dedup, dropped-with-reasons, grounded expertise
+            verdict; code-level validation + one retry)
+  → render (md + json + full trace + cost/latency meta)
+```
+
+Fast/smart model per provider: Haiku 4.5 / Sonnet 5 on Anthropic, flash on Gemini —
+see `config.py`.
+
+## Design decisions
+
+Each entry is a problem actually hit during the build and the architectural choice made
+for it. The blow-by-blow (experiments, dead ends, incidents) is in `docs/BUILD_NOTES.md`.
+
+**A linear pipeline, not an agent loop.** Curation could be a free-form agent with
+tools; the MVP is instead eight deterministic stages with typed contracts between them.
+Reason: a fixed pipeline is readable, debuggable, and — crucially — evaluable stage by
+stage. The agentic version is a planned evolution (see below), attempted only now that
+an eval exists to prove whether the added freedom actually buys quality.
+
+**Two-stage video fetching, decided by measurement.** One search call *can* return full
+metadata for every result, but it does per-video work serially (~64s for a 60-candidate
+pool). Cheap flat search for breadth, full extraction only for the ~14 triaged
+finalists, runs in ~5–8s. This was benchmarked before implementation
+(`experiments/benchmark_youtube_fetch.py`), not assumed.
+
+**Deep content only where it pays — and chapters first.** The rubric's core question
+is whether inclusion reasons reference actual content. Triage sees only metadata;
+finalists get real content evidence. Within that, chapters + descriptions + stats are
+the *primary* source and transcript text is opt-in (`--transcripts`): live operation
+showed YouTube rate-limits its caption endpoint so aggressively that transcript-first
+designs stall, while chapter-grounded reasons proved sufficient to pass every
+groundedness check and judge dimension. Transcripts, when fetched, are compressed to a
+per-video token budget (raw: up to ~10k tokens each) and cached forever.
+
+**Everything external degrades; only search is fatal.** Mid-build, YouTube IP-blocked
+caption downloads for a full day. The architecture treats transcripts, web-search
+recency enrichment, and even individual video fetches as optional layers: their failure
+lowers pick confidence (and says so in the output) instead of crashing the run. A
+refused harmful goal is likewise a *correct output* with its own artifact, not an error.
+
+**Model output is never trusted structurally.** LLMs occasionally hallucinate video
+IDs, overrun time budgets, and emit truncated JSON. Every curation passes a code-level
+validation gate (picks must exist in the real candidate pool, arithmetic is recomputed,
+segment bounds checked) with one retry that quotes the violations, then fails loudly.
+
+**Reasoning spend is a first-class budget.** Reasoning models spend "thinking" tokens
+from the same budget as the answer — live runs had curricula silently truncated by the
+model's own deliberation. Generation-heavy calls now run with bounded reasoning effort,
+and the parse layer self-heals once before failing. Cost, latency, and tokens are
+instrumented per stage from day one, which is how this (and a 10× slow enrichment step)
+was caught.
+
+**Provider-agnostic LLM layer.** One small interface, two backends: Anthropic (tiered —
+cheap model for guard/triage, strong model for plan/curate/judge) and Gemini flash (raw
+REST, no extra SDK). 
+Motivations: the assignment key has a usage cap, and anthropic keys provided were not accessible to me, hence I used a second provider, while also adding option for the testers to use anthropic tiered models.
+This turns "model comparison" into a measured cross-provider result ($0.32 vs $0.03 per
+curriculum, same checks passing), and the abstraction keeps every pipeline stage
+provider-blind.
+
+**Cache all immutable facts.** Search results, video metadata, and transcripts are
+cached on disk. Consequences: eval reruns are reproducible and near-free, graders can
+re-run the test set in seconds, and the system stops re-triggering the rate limits that
+caused the caption block in the first place.
+
+**Engagement is a floor, not a ranker.** View counts and like-ratio (likes÷views) are
+computed into every finalist bundle and surfaced to triage and the curator with one
+rule: a quality floor and tiebreak between otherwise-equal videos, never the ranking —
+popularity ranks what's popular, not what's right for *this* learner (the assignment's
+own framing). The eval enforces the same floor deterministically (`engagement_floor`:
+<1k views or <0.5% like-ratio flags a pick) and reports median views / mean like-ratio
+per curriculum; thresholds are deliberately low so niche or non-English picks that are
+*right* for a constrained learner don't get punished.
+
+**Property-based evaluation, no golden outputs.** YouTube search is non-deterministic
+over a live corpus, so expected-video-ID tests would rot in weeks. The test set asserts
+properties instead — budget respected, constraints honored, no hallucinated picks,
+refusal when required. What the eval *cannot* see is documented as carefully as what it
+can (`EVALUATION.md` §4–5).
+
+**Two-phase expertise assessment.** "What level will I reach?" can't be honestly
+answered before knowing what the videos contain. The planner only *estimates* a target
+to calibrate queries; the grounded verdict comes from the curator, which holds the
+picked videos' actual content — and shortfalls against the estimate are reported, not
+papered over.
+
+## What I'd do with more time
+
+The full prioritized plan is `plans/02-enhancements-plan.md`. First three, and why in
+this order: 
+
+1. **Comparison harness** (content depth × model × prompt matrix over the test set).
+   First because it multiplies the value of everything after it: it turns claims like
+   "content grounding matters" into measured quality-vs-cost deltas, and every later
+   feature gets accepted or rejected by this harness instead of by intuition.
+2. **Agentic curator** — a bounded tool-use loop that can pull a finalist's *full*
+   transcript, run one gap-filling search, and do explicit pairwise comparisons of
+   overlapping videos. Second because it attacks the MVP's real quality ceiling (the
+   curator can only rank what triage handed it), and because #1 must exist first to
+   prove the extra cost buys anything.
+3. **Follow-up Q&A** (`curriculum ask`) — the agent defends its choices from the
+   persisted run trace, so "why didn't you include video X?" gets an answer grounded
+   in recorded drop reasons rather than a retcon. Third because the trace it needs is
+   already persisted by the MVP; it's high user value at low marginal cost.
+
+### Evaluation depth
+
+4. **Human-label calibration of the judge.** Prototyped and cut for time: record my
+   own acceptable/not verdicts per curriculum *before* seeing judge scores, then
+   report a judge-vs-human agreement table with every disagreement feeding
+   EVALUATION.md §5. The manual version of this already produced the document's best
+   findings (the coverage-contradiction the judge missed); systematizing it is the
+   next real step for trusting — or correcting — the LLM judge.
+
+### Product experience (turning the engine into a learning platform)
+
+5. **Cloud DB layer for saved programs.** Persist each user's query and curated
+   program (runs are already self-contained JSON artifacts, so this is a storage
+   layer, not a redesign) — returning users see and resume their previous curricula
+   instead of regenerating them.
+6. **Progress tracking.** A per-pick completion state and a progress bar over the
+   curriculum (watch-minutes completed vs planned), so the time-budget promise
+   becomes something the user can see themselves keeping.
+7. **End-of-module quizzes.** A short quiz after each video, generated from that
+   video's chapters/transcript, helping users verify their level before moving to the
+   next pick — and giving the expertise-trajectory claim a feedback signal.
+8. **Two-track user feedback.** *Personal* feedback stores individual preferences
+   (e.g. "less theory, faster pace") and conditions that user's future curations;
+   *general* feedback aggregates across users to improve the product itself — prompt
+   tuning, triage weights, and eval thresholds driven by real usage instead of my
+   judgment alone.
+
+Beyond those: community-sourced discovery (Reddit — popularity ranks what's popular,
+communities rank what people actually learned from), SponsorBlock-aware time budgets,
+and a 10K-users/day cost projection built from accumulated `run_meta` data.
+
+## Repo map
+
+```
+src/curriculum_agent/   the agent (pipeline.py orchestrates; prompts.py has every prompt;
+                        server.py + static/index.html are the web UI)
+eval/                   checks.py (deterministic), judge.py (LLM), run_eval.py (report)
+test_set/               7 personas + .expected.json property files
+experiments/            pre-implementation benchmarks + smoke tests (kept as evidence)
+plans/                  MVP + enhancements plans
+docs/BUILD_NOTES.md     the build journal: decisions, experiments, dead ends
+```

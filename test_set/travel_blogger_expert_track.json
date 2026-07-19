@@ -1,0 +1,11 @@
+{
+  "persona_id": "travel_blogger_expert_track",
+  "goal": "Become an expert travel blogger and grow an audience from zero",
+  "time_budget_minutes": 600,
+  "user_context": {
+    "background": "Marketing analyst who writes well but has never published online",
+    "known": ["basic photography", "writing"],
+    "unknown": [],
+    "constraints": ""
+  }
+}
